@@ -6,6 +6,9 @@ on:
       cmake-options:
         required: false
         type: string
+      ctest-options:
+        required: false
+        type: string
       itk-cmake-options:
         required: false
         type: string
@@ -130,11 +133,11 @@ jobs:
     - name: Build and test
       if: matrix.os != 'windows-2019'
       run: |
-        ctest --output-on-failure -j 2 -V -S dashboard.cmake
+        ctest --output-on-failure -j 2 -V -S dashboard.cmake ${{ inputs.ctest-options }}
 
     - name: Build and test
       if: matrix.os == 'windows-2019'
       run: |
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        ctest --output-on-failure -j 2 -V -S dashboard.cmake
+        ctest --output-on-failure -j 2 -V -S dashboard.cmake ${{ inputs.ctest-options }}
       shell: cmd
