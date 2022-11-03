@@ -15,13 +15,13 @@ on:
       pypi_password:
         required: false  # Packages will not be uploaded to PyPI if not set
 
-jobs:  
+jobs:
   build-linux-python-packages:
     runs-on: ubuntu-20.04
     strategy:
       max-parallel: 2
       matrix:
-        python-version: [37, 38, 39, 310]
+        python-version: ["37", "38", "39", "310"]
 
     steps:
     - uses: actions/checkout@v2
@@ -49,7 +49,7 @@ jobs:
         else
           CMAKE_OPTIONS="--cmake_options ${{ inputs.cmake-options }}"
         fi
-          
+
         for tarball in "-manylinux_2_28" "-manylinux2014"; do
           rm -rf ITKPythonPackage
           export TARBALL_SPECIALIZATION=${tarball}
@@ -105,7 +105,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        python-version-minor: [7, 8, 9, 10]
+        python-version-minor: ["7", "8", "9", "10"]
 
     steps:
     - name: Get specific version of CMake, Ninja
