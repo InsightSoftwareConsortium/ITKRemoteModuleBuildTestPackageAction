@@ -10,7 +10,7 @@ on:
       itk-wheel-tag:
         required: false
         type: string
-        default: 'v5.3rc04.post3'
+        default: 'v5.3rc04.post4'
     secrets:
       pypi_password:
         required: false  # Packages will not be uploaded to PyPI if not set
@@ -21,7 +21,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        python-version: ["37", "38", "39", "310"]
+        python-version: ["37", "38", "39", "310", "311"]
 
     steps:
     - uses: actions/checkout@v2
@@ -105,7 +105,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        python-version-minor: ["7", "8", "9", "10"]
+        python-version-minor: ["7", "8", "9", "10", "11"]
 
     steps:
     - name: Get specific version of CMake, Ninja
