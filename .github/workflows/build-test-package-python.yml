@@ -35,6 +35,12 @@ jobs:
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
         df -h
 
+    - name: 'Fetch build dependencies'
+      shell: bash
+      run: |
+        sudo apt install zstd
+        unzstd --version
+
     - name: 'Fetch build script'
       run: |
         curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITKPythonPackage/master/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
