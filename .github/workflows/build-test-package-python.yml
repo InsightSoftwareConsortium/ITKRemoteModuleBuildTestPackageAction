@@ -11,6 +11,10 @@ on:
         required: false
         type: string
         default: 'v5.3.0'
+      itk-python-package-tag:
+        required: false
+        type: string
+        default: '0f5effc39afbf7cb1ac5ab20faa0996ddb12b34d' # 5.3 patch
     secrets:
       pypi_password:
         required: false  # Packages will not be uploaded to PyPI if not set
@@ -43,7 +47,12 @@ jobs:
 
     - name: 'Fetch build script'
       run: |
-        curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITKPythonPackage/master/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
+        ITK_PYTHON_PACKAGE_GIT_TAG=${{ inputs.itk-python-package-tag }}
+        if [[ -z ${ITK_PYTHON_PACKAGE_GIT_TAG} ]]; then
+          ITK_PYTHON_PACKAGE_GIT_TAG="master"
+        fi
+
+        curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITKPythonPackage/${ITK_PYTHON_PACKAGE_GIT_TAG}/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
         chmod u+x dockcross-manylinux-download-cache-and-build-module-wheels.sh
 
     - name: 'Build 🐍 Python 📦 package'
@@ -85,7 +94,12 @@ jobs:
 
     - name: 'Fetch build script'
       run: |
-        curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITKPythonPackage/master/scripts/macpython-download-cache-and-build-module-wheels.sh -O
+        ITK_PYTHON_PACKAGE_GIT_TAG=${{ inputs.itk-python-package-tag }}
+        if [[ -z ${ITK_PYTHON_PACKAGE_GIT_TAG} ]]; then
+          ITK_PYTHON_PACKAGE_GIT_TAG="master"
+        fi
+
+        curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITKPythonPackage/${ITK_PYTHON_PACKAGE_GIT_TAG}/scripts/macpython-download-cache-and-build-module-wheels.sh -O
         chmod u+x macpython-download-cache-and-build-module-wheels.sh
 
     - name: 'Build 🐍 Python 📦 package'
@@ -138,6 +152,18 @@ jobs:
         7z x doxygen-1.8.11.windows.bin.zip -o/c/P/doxygen -aoa -r
         curl -L "https://data.kitware.com/api/v1/file/5bbf87ba8d777f06b91f27d6/download/grep-win.zip" -o "grep-win.zip"
         7z x grep-win.zip -o/c/P/grep -aoa -r
+
+        if [[ -n ${{ inputs.itk-python-package-tag }} ]]; then
+          echo "Updating ITKPythonPackage build scripts to ${{ inputs.itk-python-package-tag }}"
+          pushd /c/P/IPP
+          git remote add InsightSoftwareConsortium https://github.com/InsightSoftwareConsortium/ITKPythonPackage.git --tags
+          git fetch InsightSoftwareConsortium
+          git checkout ${{ inputs.itk-python-package-tag }}
+          git status
+          popd
+        else
+          echo "Using ITKPythonPackage scripts included with ITKPythonBuilds archive"
+        fi
 
     - name: 'Build 🐍 Python 📦 package'
       shell: cmd
