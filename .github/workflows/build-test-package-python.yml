@@ -81,7 +81,7 @@ jobs:
         sudo xcode-select -s "/Applications/Xcode_13.2.1.app"
 
     - name: Get specific version of CMake, Ninja
-      uses: lukka/get-cmake@v3.18.3
+      uses: lukka/get-cmake@v3.22.2
 
     - name: 'Fetch build script'
       run: |
@@ -115,7 +115,7 @@ jobs:
 
     steps:
     - name: Get specific version of CMake, Ninja
-      uses: lukka/get-cmake@v3.18.3
+      uses: lukka/get-cmake@v3.22.2
 
     - uses: actions/checkout@v2
       with:
@@ -160,7 +160,7 @@ jobs:
       - build-linux-python-packages
       - build-macos-python-packages
       - build-windows-python-packages
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Download Python Packages
