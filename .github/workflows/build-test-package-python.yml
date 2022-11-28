@@ -10,7 +10,7 @@ on:
       itk-wheel-tag:
         required: false
         type: string
-        default: 'v5.3rc04.post4'
+        default: 'v5.3.0'
     secrets:
       pypi_password:
         required: false  # Packages will not be uploaded to PyPI if not set
