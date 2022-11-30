@@ -14,7 +14,11 @@ on:
       itk-python-package-tag:
         required: false
         type: string
-        default: '0f5effc39afbf7cb1ac5ab20faa0996ddb12b34d' # 5.3 patch
+        default: '03391ad738438661fff40bfe37a7cfabd171b9b1' # 5.3 patch
+      itk-python-package-org:
+        required: false
+        type: string
+        default: 'InsightSoftwareConsortium'
     secrets:
       pypi_password:
         required: false  # Packages will not be uploaded to PyPI if not set
@@ -47,27 +51,27 @@ jobs:
 
     - name: 'Fetch build script'
       run: |
-        ITK_PYTHON_PACKAGE_GIT_TAG=${{ inputs.itk-python-package-tag }}
-        if [[ -z ${ITK_PYTHON_PACKAGE_GIT_TAG} ]]; then
-          ITK_PYTHON_PACKAGE_GIT_TAG="master"
-        fi
-
-        curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITKPythonPackage/${ITK_PYTHON_PACKAGE_GIT_TAG}/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
+        IPP_DOWNLOAD_GIT_TAG=${{ inputs.itk-python-package-tag }}
+        IPP_DOWNLOAD_ORG=${{ inputs.itk-python-package-org }}
+        curl -L https://raw.githubusercontent.com/${IPP_DOWNLOAD_ORG:=InsightSoftwareConsortium}/ITKPythonPackage/${IPP_DOWNLOAD_GIT_TAG:=master}/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
         chmod u+x dockcross-manylinux-download-cache-and-build-module-wheels.sh
 
     - name: 'Build 🐍 Python 📦 package'
       shell: bash
       run: |
         export ITK_PACKAGE_VERSION=${{ inputs.itk-wheel-tag }}
+        export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
+        export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
         if [ -z ${{ inputs.cmake-options }}]; then
           CMAKE_OPTIONS=""
         else
           CMAKE_OPTIONS="--cmake_options ${{ inputs.cmake-options }}"
         fi
 
-        for tarball in "-manylinux_2_28" "-manylinux2014"; do
+        for manylinux_version in "_2_28" "2014"; do
           rm -rf ITKPythonPackage
-          export TARBALL_SPECIALIZATION=${tarball}
+          export MANYLINUX_VERSION=${manylinux_version}
+          echo "Building for manylinux specialization ${MANYLINUX_VERSION}"
           ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp${{ matrix.python-version }} $CMAKE_OPTIONS
         done
 
@@ -94,18 +98,17 @@ jobs:
 
     - name: 'Fetch build script'
       run: |
-        ITK_PYTHON_PACKAGE_GIT_TAG=${{ inputs.itk-python-package-tag }}
-        if [[ -z ${ITK_PYTHON_PACKAGE_GIT_TAG} ]]; then
-          ITK_PYTHON_PACKAGE_GIT_TAG="master"
-        fi
-
-        curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITKPythonPackage/${ITK_PYTHON_PACKAGE_GIT_TAG}/scripts/macpython-download-cache-and-build-module-wheels.sh -O
+        IPP_DOWNLOAD_GIT_TAG=${{ inputs.itk-python-package-tag }}
+        IPP_DOWNLOAD_ORG=${{ inputs.itk-python-package-org }}
+        curl -L https://raw.githubusercontent.com/${IPP_DOWNLOAD_ORG:=InsightSoftwareConsortium}/ITKPythonPackage/${IPP_DOWNLOAD_GIT_TAG:=master}/scripts/macpython-download-cache-and-build-module-wheels.sh -O
         chmod u+x macpython-download-cache-and-build-module-wheels.sh
 
     - name: 'Build 🐍 Python 📦 package'
       shell: bash
       run: |
         export ITK_PACKAGE_VERSION=${{ inputs.itk-wheel-tag }}
+        export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
+        export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
         export MACOSX_DEPLOYMENT_TARGET=10.9
         if [ -z ${{ inputs.cmake-options }}]; then
           CMAKE_OPTIONS=""
@@ -135,6 +138,12 @@ jobs:
       with:
         path: "im"
 
+    - name: 'Reduce source path length'
+      shell: bash
+      run: |
+        # Move checked-out source to a shorter path to avoid Windows path length issues
+        mv im ../../
+
     - name: 'Install Python'
       run: |
         $pythonArch = "64"
@@ -144,7 +153,6 @@ jobs:
     - name: 'Fetch build dependencies'
       shell: bash
       run: |
-        mv im ../../
         cd ../../
         curl -L "https://github.com/InsightSoftwareConsortium/ITKPythonBuilds/releases/download/${{ inputs.itk-wheel-tag }}/ITKPythonBuilds-windows.zip" -o "ITKPythonBuilds-windows.zip"
         7z x ITKPythonBuilds-windows.zip -o/c/P -aoa -r
@@ -156,8 +164,8 @@ jobs:
         if [[ -n ${{ inputs.itk-python-package-tag }} ]]; then
           echo "Updating ITKPythonPackage build scripts to ${{ inputs.itk-python-package-tag }}"
           pushd /c/P/IPP
-          git remote add InsightSoftwareConsortium https://github.com/InsightSoftwareConsortium/ITKPythonPackage.git --tags
-          git fetch InsightSoftwareConsortium
+          git remote add ${{ inputs.itk-python-package-org }} https://github.com/${{ inputs.itk-python-package-org }}/ITKPythonPackage.git --tags
+          git fetch ${{ inputs.itk-python-package-org }}
           git checkout ${{ inputs.itk-python-package-tag }}
           git status
           popd
