@@ -14,7 +14,7 @@ on:
       itk-python-package-tag:
         required: false
         type: string
-        default: '03391ad738438661fff40bfe37a7cfabd171b9b1' # 5.3 patch
+        default: 'f7c4b5b6d3ac532aa3693ff87e46f0c41543c74f'
       itk-python-package-org:
         required: false
         type: string
