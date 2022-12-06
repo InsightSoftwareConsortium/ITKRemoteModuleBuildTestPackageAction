@@ -104,9 +104,9 @@ jobs:
         operating_system="${{ matrix.os }}"
         cat > dashboard.cmake << EOF
         set(CTEST_SITE "GitHubActions")
-        file(TO_CMAKE_PATH "\$ENV{GITHUB_WORKSPACE}/.." CTEST_DASHBOARD_ROOT)
-        file(TO_CMAKE_PATH "\$ENV{GITHUB_WORKSPACE}/" CTEST_SOURCE_DIRECTORY)
-        file(TO_CMAKE_PATH "\$ENV{GITHUB_WORKSPACE}/../build" CTEST_BINARY_DIRECTORY)
+        file(TO_CMAKE_PATH "$(pwd)/.." CTEST_DASHBOARD_ROOT)
+        file(TO_CMAKE_PATH "$(pwd)/" CTEST_SOURCE_DIRECTORY)
+        file(TO_CMAKE_PATH "$(pwd)/../build" CTEST_BINARY_DIRECTORY)
         set(dashboard_source_name "${GITHUB_REPOSITORY}")
         if((ENV{GITHUB_REF_NAME} MATCHES "master" OR ENV{GITHUB_REF_NAME} MATCHES "main"))
           set(branch "-master")
