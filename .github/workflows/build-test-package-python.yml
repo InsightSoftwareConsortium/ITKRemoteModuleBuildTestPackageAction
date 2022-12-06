@@ -14,7 +14,7 @@ on:
       itk-python-package-tag:
         required: false
         type: string
-        default: 'f7c4b5b6d3ac532aa3693ff87e46f0c41543c74f'
+        default: 'f91b70fe5f97a095be8e20cff33be31a11b0b96e'
       itk-python-package-org:
         required: false
         type: string
