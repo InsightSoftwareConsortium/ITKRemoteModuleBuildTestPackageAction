@@ -101,6 +101,8 @@ jobs:
       shell: bash
       run: |
         cd ../../im
+        pwd
+        ls
         operating_system="${{ matrix.os }}"
         cat > dashboard.cmake << EOF
         set(CTEST_SITE "GitHubActions")
@@ -155,5 +157,7 @@ jobs:
       shell: cmd
       run: |
         cd ../../im
+        pwd
+        ls
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         ctest --output-on-failure -j 2 -V -S dashboard.cmake ${{ inputs.ctest-options }}
