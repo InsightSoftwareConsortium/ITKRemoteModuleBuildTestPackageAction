@@ -103,6 +103,12 @@ jobs:
         cd ../../im
         pwd
         ls
+        pushd ../
+        ls
+        if [[ -f "im-init.cmake" ]]; then
+          cat im-init.cmake
+        fi
+        popd
         operating_system="${{ matrix.os }}"
         cat > dashboard.cmake << EOF
         set(CTEST_SITE "GitHubActions")
@@ -122,7 +128,7 @@ jobs:
         set(CTEST_TEST_ARGS \${CTEST_TEST_ARGS} PARALLEL_LEVEL \${PARALLEL_LEVEL})
         set(CTEST_BUILD_CONFIGURATION "Release")
         set(CTEST_CMAKE_GENERATOR "Ninja")
-        set(CTEST_CHECKOUT_COMMAND "")
+        set(CTEST_CHECKOUT_COMMAND "echo \"Module is already checked out\"")
         set(CTEST_CUSTOM_WARNING_EXCEPTION
           \${CTEST_CUSTOM_WARNING_EXCEPTION}
           # macOS Azure VM Warning
