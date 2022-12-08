@@ -39,15 +39,7 @@ jobs:
             cmake-build-type: "MinSizeRel"
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-        path: 'im'
-
-    - name: 'Reduce source path length'
-      shell: bash
-      run: |
-        # Move checked-out source to a shorter path to avoid Windows path length issues
-        mv im ../../
+    - uses: actions/checkout@v2
 
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
@@ -63,18 +55,16 @@ jobs:
       uses: lukka/get-cmake@v3.22.2
 
     - name: Download ITK
-      shell: bash
       run: |
-        cd ../../
+        cd ..
         git clone https://github.com/InsightSoftwareConsortium/ITK.git
         cd ITK
         git checkout ${{ inputs.itk-git-tag }}
 
     - name: Build ITK
       if: matrix.os != 'windows-2022'
-      shell: bash
       run: |
-        cd ../../
+        cd ..
         mkdir ITK-build
         cd ITK-build
         cmake -DCMAKE_C_COMPILER:FILEPATH="${{ matrix.c-compiler }}" -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" -DCMAKE_BUILD_TYPE:STRING=${{ matrix.cmake-build-type }} -DBUILD_TESTING:BOOL=OFF ${{ inputs.itk-cmake-options }}  -GNinja ../ITK
@@ -82,25 +72,22 @@ jobs:
 
     - name: Build ITK
       if: matrix.os == 'windows-2022'
-      shell: cmd
       run: |
-        cd ../../
+        cd ..
         mkdir ITK-build
         cd ITK-build
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         cmake -DCMAKE_C_COMPILER:FILEPATH="${{ matrix.c-compiler }}" -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" -DCMAKE_BUILD_TYPE:STRING=${{ matrix.cmake-build-type }} -DBUILD_TESTING:BOOL=OFF ${{ inputs.itk-cmake-options }}  -GNinja ../ITK
         ninja
+      shell: cmd
 
     - name: Fetch CTest driver script
-      shell: bash
       run: |
-        cd ../../im
         curl -L https://raw.githubusercontent.com/InsightSoftwareConsortium/ITK/dashboard/itk_common.cmake -O
 
     - name: Configure CTest script
       shell: bash
       run: |
-        cd ../../im
         operating_system="${{ matrix.os }}"
         cat > dashboard.cmake << EOF
         set(CTEST_SITE "GitHubActions")
@@ -145,15 +132,12 @@ jobs:
 
     - name: Build and test
       if: matrix.os != 'windows-2022'
-      shell: bash
-      run: |      
-        cd ../../im
+      run: |
         ctest --output-on-failure -j 2 -V -S dashboard.cmake ${{ inputs.ctest-options }}
 
     - name: Build and test
       if: matrix.os == 'windows-2022'
-      shell: cmd
       run: |
-        cd ../../im
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         ctest --output-on-failure -j 2 -V -S dashboard.cmake ${{ inputs.ctest-options }}
+      shell: cmd
