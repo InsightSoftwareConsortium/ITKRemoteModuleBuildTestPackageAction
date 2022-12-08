@@ -122,6 +122,7 @@ jobs:
         set(CTEST_TEST_ARGS \${CTEST_TEST_ARGS} PARALLEL_LEVEL \${PARALLEL_LEVEL})
         set(CTEST_BUILD_CONFIGURATION "Release")
         set(CTEST_CMAKE_GENERATOR "Ninja")
+        set(CTEST_CHECKOUT_COMMAND "")
         set(CTEST_CUSTOM_WARNING_EXCEPTION
           \${CTEST_CUSTOM_WARNING_EXCEPTION}
           # macOS Azure VM Warning
@@ -141,6 +142,7 @@ jobs:
         string(TIMESTAMP build_date "%Y-%m-%d")
         message("CDash Build Identifier: \${build_date} \${CTEST_BUILD_NAME}")
         message("CTEST_SITE = \${CTEST_SITE}")
+        message("dashboard_cache ${dashboard_cache}")
         include(\${CTEST_SCRIPT_DIRECTORY}/itk_common.cmake)
         EOF
         cat dashboard.cmake
