@@ -101,12 +101,20 @@ jobs:
       shell: bash
       run: |
         cd ../../im
+        pwd
+        ls
+        pushd ../
+        ls
+        if [[ -f "im-init.cmake" ]]; then
+          cat im-init.cmake
+        fi
+        popd
         operating_system="${{ matrix.os }}"
         cat > dashboard.cmake << EOF
         set(CTEST_SITE "GitHubActions")
-        file(TO_CMAKE_PATH "\$ENV{GITHUB_WORKSPACE}/.." CTEST_DASHBOARD_ROOT)
-        file(TO_CMAKE_PATH "\$ENV{GITHUB_WORKSPACE}/" CTEST_SOURCE_DIRECTORY)
-        file(TO_CMAKE_PATH "\$ENV{GITHUB_WORKSPACE}/../build" CTEST_BINARY_DIRECTORY)
+        file(TO_CMAKE_PATH "$(pwd)/.." CTEST_DASHBOARD_ROOT)
+        file(TO_CMAKE_PATH "$(pwd)/" CTEST_SOURCE_DIRECTORY)
+        file(TO_CMAKE_PATH "$(pwd)/../build" CTEST_BINARY_DIRECTORY)
         set(dashboard_source_name "${GITHUB_REPOSITORY}")
         if((ENV{GITHUB_REF_NAME} MATCHES "master" OR ENV{GITHUB_REF_NAME} MATCHES "main"))
           set(branch "-master")
@@ -120,6 +128,7 @@ jobs:
         set(CTEST_TEST_ARGS \${CTEST_TEST_ARGS} PARALLEL_LEVEL \${PARALLEL_LEVEL})
         set(CTEST_BUILD_CONFIGURATION "Release")
         set(CTEST_CMAKE_GENERATOR "Ninja")
+        set(CTEST_CHECKOUT_COMMAND "echo \"Module is already checked out\"")
         set(CTEST_CUSTOM_WARNING_EXCEPTION
           \${CTEST_CUSTOM_WARNING_EXCEPTION}
           # macOS Azure VM Warning
@@ -139,6 +148,7 @@ jobs:
         string(TIMESTAMP build_date "%Y-%m-%d")
         message("CDash Build Identifier: \${build_date} \${CTEST_BUILD_NAME}")
         message("CTEST_SITE = \${CTEST_SITE}")
+        message("dashboard_cache ${dashboard_cache}")
         include(\${CTEST_SCRIPT_DIRECTORY}/itk_common.cmake)
         EOF
         cat dashboard.cmake
@@ -155,5 +165,10 @@ jobs:
       shell: cmd
       run: |
         cd ../../im
+        pwd
+        ls
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        cat CMakeLists.txt
         ctest --output-on-failure -j 2 -V -S dashboard.cmake ${{ inputs.ctest-options }}
+        ls
+        cat CMakeLists.txt
