@@ -9,6 +9,9 @@ on:
       ctest-options:
         required: false
         type: string
+      warnings-to-ignore:
+        required: false
+        type: string
       itk-cmake-options:
         required: false
         type: string
@@ -111,6 +114,7 @@ jobs:
           \${CTEST_CUSTOM_WARNING_EXCEPTION}
           # macOS Azure VM Warning
           "ld: warning: text-based stub file"
+          ${{ inputs.warnings-to-ignore }}
           )
         set(dashboard_no_clean 1)
         set(ENV{CC} ${{ matrix.c-compiler }})
