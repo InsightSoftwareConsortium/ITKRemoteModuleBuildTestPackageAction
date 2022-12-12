@@ -14,7 +14,7 @@ on:
       itk-python-package-tag:
         required: false
         type: string
-        default: 'f91b70fe5f97a095be8e20cff33be31a11b0b96e'
+        default: 'd24dc0cd1f1f79e9a9846ab74a9e7eefec9ac067'
       itk-python-package-org:
         required: false
         type: string
@@ -134,7 +134,7 @@ jobs:
     - name: Get specific version of CMake, Ninja
       uses: lukka/get-cmake@v3.22.2
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         path: "im"
 
@@ -144,44 +144,27 @@ jobs:
         # Move checked-out source to a shorter path to avoid Windows path length issues
         mv im ../../
 
-    - name: 'Install Python'
-      run: |
-        $pythonArch = "64"
-        $pythonVersion = "3.${{ matrix.python-version-minor }}"
-        iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/scikit-build/scikit-ci-addons/master/windows/install-python.ps1'))
-
-    - name: 'Fetch build dependencies'
-      shell: bash
-      run: |
-        cd ../../
-        curl -L "https://github.com/InsightSoftwareConsortium/ITKPythonBuilds/releases/download/${{ inputs.itk-wheel-tag }}/ITKPythonBuilds-windows.zip" -o "ITKPythonBuilds-windows.zip"
-        7z x ITKPythonBuilds-windows.zip -o/c/P -aoa -r
-        curl -L "https://data.kitware.com/api/v1/file/5c0ad59d8d777f2179dd3e9c/download" -o "doxygen-1.8.11.windows.bin.zip"
-        7z x doxygen-1.8.11.windows.bin.zip -o/c/P/doxygen -aoa -r
-        curl -L "https://data.kitware.com/api/v1/file/5bbf87ba8d777f06b91f27d6/download/grep-win.zip" -o "grep-win.zip"
-        7z x grep-win.zip -o/c/P/grep -aoa -r
-
-        if [[ -n ${{ inputs.itk-python-package-tag }} ]]; then
-          echo "Updating ITKPythonPackage build scripts to ${{ inputs.itk-python-package-tag }}"
-          pushd /c/P/IPP
-          git remote add ${{ inputs.itk-python-package-org }} https://github.com/${{ inputs.itk-python-package-org }}/ITKPythonPackage.git --tags
-          git fetch ${{ inputs.itk-python-package-org }}
-          git checkout ${{ inputs.itk-python-package-tag }}
-          git status
-          popd
-        else
-          echo "Using ITKPythonPackage scripts included with ITKPythonBuilds archive"
-        fi
-
-    - name: 'Build 🐍 Python 📦 package'
-      shell: cmd
+    - name: 'Fetch build script'
+      shell: pwsh
       run: |
         cd ../../im
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        set PATH=C:\P\grep;%PATH%
-        set CC=cl.exe
-        set CXX=cl.exe
-        C:\Python3${{ matrix.python-version-minor }}-x64\python.exe C:\P\IPP\scripts\windows_build_module_wheels.py --py-envs "3${{ matrix.python-version-minor }}-x64" --no-cleanup
+        $ITKPYTHONPACKAGE_TAG = "${{ inputs.itk-python-package-tag }}"
+        $ITKPYTHONPACKAGE_ORG = "${{ inputs.itk-python-package-org }}"
+        $SCRIPT_UPSTREAM = "https://raw.githubusercontent.com/$ITKPYTHONPACKAGE_ORG/ITKPythonPackage/$ITKPYTHONPACKAGE_TAG/scripts/windows-download-cache-and-build-module-wheels.ps1"
+        echo "Fetching $SCRIPT_UPSTREAM"
+        (new-object net.webclient).DownloadString($SCRIPT_UPSTREAM) > windows-download-cache-and-build-module-wheels.ps1
+
+    - name: 'Build 🐍 Python 📦 package'
+      shell: pwsh
+      run: |
+        cd ../../im
+        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
+        $env:CC="cl.exe"
+        $env:CXX="cl.exe"
+        $env:ITK_PACKAGE_VERSION = "${{ inputs.itk-wheel-tag }}"
+        $env:ITKPYTHONPACKAGE_TAG = "${{ inputs.itk-python-package-tag }}"
+        $env:ITKPYTHONPACKAGE_ORG = "${{ inputs.itk-python-package-org }}"
+        ./windows-download-cache-and-build-module-wheels.ps1 "${{ matrix.python-version-minor }}"
 
     - name: Publish Python package as GitHub Artifact
       uses: actions/upload-artifact@v1
