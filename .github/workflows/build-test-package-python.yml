@@ -19,12 +19,17 @@ on:
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
-        default: 'd24dc0cd1f1f79e9a9846ab74a9e7eefec9ac067'
+        default: 'aa3b0767801ecc489f6219777ead2652f7ac4ccf'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
         type: string
         default: 'InsightSoftwareConsortium'
+      itk-module-deps:
+        description: 'Colon-delimited list of ITK remote module dependencies to build. Format as org/module_name@tag:...'
+        # example: InsightSoftwareConsortium/ITKMeshToPolyData@3ad8f08:InsightSoftwareConsortium/ITKBSplineGradient@0.3.0
+        required: false
+        type: string
     secrets:
       pypi_password:
         required: false  # Packages will not be uploaded to PyPI if not set
@@ -68,6 +73,7 @@ jobs:
         export ITK_PACKAGE_VERSION=${{ inputs.itk-wheel-tag }}
         export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
+        export ITK_MODULE_PREQ=${{ inputs.itk-module-deps }}
         if [ -z ${{ inputs.cmake-options }}]; then
           CMAKE_OPTIONS=""
         else
@@ -115,6 +121,7 @@ jobs:
         export ITK_PACKAGE_VERSION=${{ inputs.itk-wheel-tag }}
         export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
+        export ITK_MODULE_PREQ=${{ inputs.itk-module-deps }}
         export MACOSX_DEPLOYMENT_TARGET=10.9
         if [ -z ${{ inputs.cmake-options }}]; then
           CMAKE_OPTIONS=""
@@ -170,6 +177,7 @@ jobs:
         $env:ITK_PACKAGE_VERSION = "${{ inputs.itk-wheel-tag }}"
         $env:ITKPYTHONPACKAGE_TAG = "${{ inputs.itk-python-package-tag }}"
         $env:ITKPYTHONPACKAGE_ORG = "${{ inputs.itk-python-package-org }}"
+        $env:ITK_MODULE_PREQ = "${{ inputs.itk-module-deps }}"
         ./windows-download-cache-and-build-module-wheels.ps1 "${{ matrix.python-version-minor }}"
 
     - name: Publish Python package as GitHub Artifact
