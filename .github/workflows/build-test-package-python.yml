@@ -4,18 +4,24 @@ on:
   workflow_call:
     inputs:
       cmake-options:
+        description: 'CMake configuration parameters for the module under test'
         required: false
         type: string
         default: ""
       itk-wheel-tag:
+        # See https://github.com/InsightSoftwareConsortium/ITKPythonBuilds/releases
+        description: 'Github release version tag for the ITKPythonBuilds build archive to use'
         required: false
         type: string
         default: 'v5.3.0'
       itk-python-package-tag:
+        # See https://github.com/InsightSoftwareConsortium/ITKPythonPackage
+        description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
         default: 'd24dc0cd1f1f79e9a9846ab74a9e7eefec9ac067'
       itk-python-package-org:
+        description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
         type: string
         default: 'InsightSoftwareConsortium'
