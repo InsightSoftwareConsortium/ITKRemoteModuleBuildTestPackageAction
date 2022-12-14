@@ -4,18 +4,23 @@ on:
   workflow_call:
     inputs:
       cmake-options:
+        description: 'CMake configuration parameters for the module under test'
         required: false
         type: string
       ctest-options:
+        description: 'CTest CLI run options for the module under test'
         required: false
         type: string
       warnings-to-ignore:
+        description: 'Warning string patterns that should be ignored for CTest/CDash reporting'
         required: false
         type: string
       itk-cmake-options:
+        description: 'CMake configuration parameters for the base ITK build'
         required: false
         type: string
       itk-git-tag:
+        description: 'Git version tag or commit hash for the base ITK build'
         required: false
         type: string
         default: 'v5.3.0'
