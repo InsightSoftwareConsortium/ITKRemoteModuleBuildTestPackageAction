@@ -67,7 +67,7 @@ More information on GitHub Actions reusable workflows is available in
 
 An example GHA `.yml` file using `ITKRemoteModuleBuildTestPackageAction` workflows:
 
-```
+```yaml
 name: Build, test, package
 
 on: [push,pull_request]
@@ -86,30 +86,30 @@ jobs:
 
 The example above can be broken down line by line:
 
-```
+```yaml
 name: Build, test, package
 ````
 The workflow name that will be used to group workflow runs under
 the "Action" tab on the external module's GitHub page.
 
-```
+```yaml
 on: [push, pull_request]
 ```
 Run workflows every time a new commit is pushed or a pull request is entered on the module repository.
 
-```
+```yaml
 jobs:
 ```
 The top-level jobs used to organize the run. Reusable workflows may provide multiple jobs.
 
-```
+```yaml
   cxx-build-workflow:
     uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@d4a5ce4f219b66b78269a15392e15c95f90e7e00
 ```
 Tells GHA to fetch and run the `build-test-cxx.yml` workflow.
 A commit hash or tagged version may be provided.
 
-```
+```yaml
     with:
       itk-cmake-options: '-DITK_BUILD_DEFAULT_MODULES:BOOL=OFF -DITKGroup_Core:BOOL=ON'
 ```
@@ -117,14 +117,14 @@ Passes input arguments to the reusable workflow. In this case the parameters pro
 in `itk-cmake-options` will be passed to the ITK configuration command so that only
 certain modules are built before the external module itself is subsequently built against ITK.
 
-```
+```yaml
   python-build-workflow:
     uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@d4a5ce4f219b66b78269a15392e15c95f90e7e00
 ```
 Tells GHA to fetch and run the `build-test-package-python.yml` workflow.
 A commit hash or tagged version may be provided.
 
-```
+```yaml
   secrets:
     pypi_password: ${{ secrets.pypi_password }}
 ```
