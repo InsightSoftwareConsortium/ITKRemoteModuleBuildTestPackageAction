@@ -24,6 +24,11 @@ on:
         required: false
         type: string
         default: 'v5.3.0'
+      itk-module-deps:
+        description: 'Colon-delimited list of ITK remote module dependencies to build. Format as module_name@tag:...'
+        # example: MeshToPolyData@3ad8f08:BSplineGradient@0.3.0
+        required: false
+        type: string
 
 jobs:
   build-test-cxx:
@@ -71,23 +76,57 @@ jobs:
 
     - name: Build ITK
       if: matrix.os != 'windows-2022'
+      shell: bash
       run: |
         cd ..
         mkdir ITK-build
         cd ITK-build
-        cmake -DCMAKE_C_COMPILER:FILEPATH="${{ matrix.c-compiler }}" -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" -DCMAKE_BUILD_TYPE:STRING=${{ matrix.cmake-build-type }} -DBUILD_TESTING:BOOL=OFF ${{ inputs.itk-cmake-options }}  -GNinja ../ITK
+        MODULE_ARGS=""
+        MODULE_DEPS=${{ inputs.itk-module-deps }}
+        for MODULE_INFO in ${MODULE_DEPS//:/ }; do
+          MODULE_NAME=`(echo ${MODULE_INFO} | cut -d'@' -f 1)`
+          MODULE_ARGS="${MODULE_ARGS} -DModule_${MODULE_NAME}:BOOL=ON"
+          MODULE_TAG=`(echo ${MODULE_INFO} | cut -d'@' -f 2)`
+          if [[ -n ${MODULE_TAG} ]]; then
+            MODULE_ARGS+=" -DModule_${MODULE_NAME}_GIT_TAG:STRING=${MODULE_TAG}"
+          fi
+        done
+        if [[ -n $MODULE_ARGS ]]; then
+          echo "Building with modules: $MODULE_ARGS"
+        fi
+        
+        cmake -DCMAKE_C_COMPILER:FILEPATH="${{ matrix.c-compiler }}" -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" -DCMAKE_BUILD_TYPE:STRING=${{ matrix.cmake-build-type }} -DBUILD_TESTING:BOOL=OFF ${{ inputs.itk-cmake-options }} ${MODULE_ARGS} -GNinja ../ITK
         ninja
 
     - name: Build ITK
       if: matrix.os == 'windows-2022'
+      shell: pwsh
       run: |
+        Set-PSDebug -Trace 1
         cd ..
+        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
         mkdir ITK-build
         cd ITK-build
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        cmake -DCMAKE_C_COMPILER:FILEPATH="${{ matrix.c-compiler }}" -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" -DCMAKE_BUILD_TYPE:STRING=${{ matrix.cmake-build-type }} -DBUILD_TESTING:BOOL=OFF ${{ inputs.itk-cmake-options }}  -GNinja ../ITK
+
+        $MODULE_ARGS=""
+        $MODULE_DEPS="${{ inputs.itk-module-deps }}"
+        $MODULES_LIST = $MODULE_DEPS.split(":")
+        foreach($MODULE_INFO in $MODULES_LIST) {
+          if($MODULE_ARGS) { $MODULE_ARGS += " " }
+          $MODULE_NAME = $MODULE_INFO.split("@")[0]
+          $MODULE_ARGS += "-DModule_$MODULE_NAME`:BOOL=ON"
+          $MODULE_TAG = $MODULE_INFO.split("@")[1]
+          if($MODULE_TAG) {
+            $MODULE_ARGS += " -DModule_$MODULE_NAME`_GIT_TAG:STRING=$MODULE_TAG"
+          }
+        }
+
+        if($MODULE_ARGS) {
+          echo "Building with parameters: ${{ inputs.itk-cmake-options }} $MODULE_ARGS"
+        }
+        
+        cmake -DCMAKE_C_COMPILER:FILEPATH="${{ matrix.c-compiler }}" -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" -DCMAKE_BUILD_TYPE:STRING=${{ matrix.cmake-build-type }} -DBUILD_TESTING:BOOL=OFF ${{ inputs.itk-cmake-options }} $MODULE_ARGS.split(" ") -GNinja ../ITK
         ninja
-      shell: cmd
 
     - name: Fetch CTest driver script
       run: |
@@ -146,7 +185,7 @@ jobs:
 
     - name: Build and test
       if: matrix.os == 'windows-2022'
+      shell: pwsh
       run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
         ctest --output-on-failure -j 2 -V -S dashboard.cmake ${{ inputs.ctest-options }}
-      shell: cmd
