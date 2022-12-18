@@ -9,6 +9,18 @@ for image analysis.
 More information is available on the [ITK website](https://itk.org/)
 or at the [ITK GitHub homepage](https://github.com/insightSoftwareConsortium/ITK).
 
+## Table of Contents
+
+- [Motivation](#motivation)
+- [Usage](#usage)
+  - [Example Usage](#example-usage)
+  - [`build-test-cxx` Overview](#build-test-cxx-overview)
+  - [`build-test-package-python` Overview](#build-test-package-python-overview)
+- [Contributing](#contributing)
+- [Additional Notes](#additional-notes)
+- [Community Discussion](#community-discussion)
+- [License](#license)
+
 ## Motivation
 
 The ITK ecosystem is driven by community contributions in the form of external
@@ -63,7 +75,7 @@ a list of parameters available for use.
 More information on GitHub Actions reusable workflows is available in
 [GitHub documentation](https://docs.github.com/en/actions/using-workflows/reusing-workflows#calling-a-reusable-workflow).
 
-## Example Usage
+### Example Usage
 
 An example GHA `.yml` file using `ITKRemoteModuleBuildTestPackageAction` workflows:
 
@@ -135,6 +147,141 @@ Python wheel to the [Python Package Index (PyPI)](https://pypi.org/) for distrib
 ITKSplitComponents is one example of an external module leveraging reusable workflows for continuous integration.
 Refer to [ITKSplitComponent's GHA workflow](https://github.com/InsightSoftwareConsortium/ITKSplitComponents/blob/master/.github/workflows/build-test-package.yml)
 
+### `build-test-cxx` Overview
+
+The workflow defined in `build-test-cxx.yml` builds and tests the external module
+against a recent version of the Insight Toolkit.
+For efficiency, wrappings are not typically built as part of this workflow.
+
+Several optional parameters are exposed to allow the external module
+to direct workflow execution.
+
+- `itk-git-tag`: The git tag or commit hash to use to fetch ITK.
+
+```yaml
+  with:
+    itk-git-tag: 'v5.3.0'
+```
+
+- `itk-cmake-options`: CMake configuration parameters for building ITK as a prerequisite.
+
+```yaml
+  with:
+    itk-cmake-options: '-DITK_BUILD_DEFAULT_MODULES:BOOL=OFF'
+```
+
+- `itk-module-deps`: List of ITK remote module dependencies to build. Module name and
+    git tag are passed to ITK to be fetched and built during the ITK build procedure.
+    Note that the C++ build pipeline currently supports only modules that have
+    a `.remote.cmake` entry under [ITK/Modules/Remote](https://github.com/InsightSoftwareConsortium/ITK/tree/master/Modules/Remote).
+    The list is colon-delimited and must be in order of subsequent dependencies, i.e.
+    if module `B` depends on module `A` then module `A` must be listed first.
+    A git tag or commit hash must be provided for each module entry.
+    The list is formatted as `module_A@tag:module_B@tag:...`.
+    Note that the "ITK" prefix is omitted for fetching remote modules.
+
+```yaml
+  with:
+    itk-module-deps: 'MeshToPolyData@3ad8f08:BSplineGradient@0.3.0'
+```
+
+- `cmake-options`: CMake configuration parameters for the module under test.
+
+```yaml
+  with:
+    cmake-options: '-DBUILD_EXAMPLES:BOOL=ON'
+```
+
+- `warnings-to-ignore`: Warning string patterns that should be ignored for CTest/CDash reporting.
+    If the given warning text is found in build output then it should neither be reported as a
+    warning nor result in a build "failure". The input to this parameter should be escaped with
+    double quotations and multiple warnings should be separated by spaces.
+
+```yaml
+  with:
+    warnings-to-ignore: '\"libcleaver.a.*has no symbols\" \"libitkcleaver.*has no symbols\"'
+```
+
+- `ctest-options`: CTest command line interface (CLI) run options for the module under test.
+    CTest options are described in [CTest documentation](https://cmake.org/cmake/help/latest/manual/ctest.1.html).
+    This parameter can be used to disable tests that are known to be broken, increase
+    output verbosity, and more. Some options may be always enabled by default.
+
+```yaml
+  with:
+    ctest-options: '-E \"elastix_run_example_COMPARE_IM|elastix_run_3DCT_lung.MI.bspline.ASGD.001_COMPARE_TP\"'
+```
+
+### `build-test-package-python` Overview
+
+The workflow defined in `build-test-package-python.yml` builds and packages Python
+wrappings for the external module against a fixed version of the Insight Toolkit.
+
+Several optional parameters are exposed to allow the external module
+to direct workflow execution.
+
+- `cmake-options`: CMake configuration parameters for the module under test.
+
+```yaml
+  with:
+    cmake-options: '-DELASTIX_USE_OPENMP:BOOL=OFF'
+```
+
+- `itk-wheel-tag`: The [GitHub release](https://github.com/InsightSoftwareConsortium/ITKPythonBuilds/releases)
+    version tag for the
+    [ITKPythonBuilds](https://github.com/insightSoftwareConsortium/ITKpythonbuilds) archive to use.
+    In order to efficiently package arbitrary ITK external modules within GitHub Actions runners time limits
+    the Insight Software Consortium provides tagged ITK build caches at
+    [ITKPythonBuilds](https://github.com/insightSoftwareConsortium/ITKpythonbuilds) that correspond to
+    `pip`-installable [ITK releases on the Python Package Index](https://pypi.org/project/itk/).
+    Setting this parameter will build the external module against a fixed ITK build cache
+    corresponding to a certain ITK wheel release on PyPI. See
+    [ITKPythonBuilds/releases](https://github.com/InsightSoftwareConsortium/ITKPythonBuilds/releases)
+    for a list of available tags to use.
+
+```yaml
+  with:
+    itk-wheel-tag: 'v5.3.0'
+```
+
+- `itk-python-package-tag`: The git tag or commit hash for ITKPythonPackage build scripts to use.
+    The [ITKPythonPackage](https://github.com/InsightSoftwareConsortium/ITKPythonPackage) repository
+    contains scripts for building ITK wheels and ITK external module wheels for different Python
+    versions on MacOS, Linux, and Windows target platforms. Setting this parameter will direct the
+    workflow to use a certain script revision for building Python wheels. See available
+    tags at [ITKPythonPackage/releases](https://github.com/InsightSoftwareConsortium/ITKPythonPackage/tags).
+
+```yaml
+  with:
+    itk-python-package-tag: 'v5.3.0'
+```
+
+- `itk-python-package-org`: The GitHub organization to reference for fetching ITKPythonPackage build scripts.
+    The central script repository is maintained on GitHub at
+    [InsightSoftwareConsortium/ITKPythonPackage](https://github.com/InsightSoftwareConsortium/ITKPythonPackage).
+    Setting this parameter will direct the workflow to fetch from an ITKPythonPackage fork on a different
+    GitHub user's or organization's account. _Using this parameter is discouraged for purposes other than
+    testing ITKPythonPackage development branches._
+
+```yaml
+  with:
+    itk-python-package-org: 'InsightSoftwareConsortium'
+```
+
+- `itk-module-deps`: List of ITK remote module dependencies to build. Module name and
+    git tag are iteratively fetched and built during the ITK build procedure.
+    Modules need not be listed under
+    [ITK/Modules/Remote](https://github.com/InsightSoftwareConsortium/ITK/tree/master/Modules/Remote).
+    The list is colon-delimited and must be in order of subsequent dependencies, i.e.
+    if module `B` depends on module `A` then module `A` must be listed first.
+    A git tag or commit hash must be provided for each module entry.
+    The list is formatted as `org/module_A@tag:org/module_B@tag:...`.
+
+```yaml
+  with:
+    itk-module-deps: 'InsightSoftwareConsortium/ITKMeshToPolyData@3ad8f08:InsightSoftwareConsortium/ITKBSplineGradient@0.3.0'
+```
+
 ## Contributing
 
 Community contributions to `ITKRemoteModuleBuildTestPackageAction` are welcome!
@@ -158,9 +305,9 @@ then consider doing one of the following:
 1. Implement build setup steps in your project's CMake procedures in `CMakeLists.txt` such that
    building with CMake in a reusable workflow handles extraneous dependency retrieval steps.
 2. Fork the workflows in `ITKRemoteModuleBuildTestPackageAction` for your project and manually
-   replicate subsequent updates in your workflow;
-3. Open a pull request with your proposed changes if the changes will generally benefit other external
-   modules in the ITK ecosystem;
+   replicate subsequent updates in your workflow.
+3. Open a pull request to propose changes if the changes will generally benefit other external
+   modules in the ITK ecosystem.
 4. [Open an issue](https://github.com/InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/issues/new)
    on `ITKRemoteModuleBuildTestPackageAction`.
 
