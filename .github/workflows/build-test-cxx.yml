@@ -1,4 +1,4 @@
-﻿name: 'Build, Test, Package ITK Remote Module'
+﻿name: 'Build, Test ITK Remote Module'
 
 on:
   workflow_call:
