@@ -88,10 +88,10 @@ jobs:
         done
 
     - name: Publish Python package as GitHub Artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: LinuxWheel${{ matrix.python-version }}
-        path: dist
+        path: dist/*.whl
 
   build-macos-python-packages:
     runs-on: macos-11
@@ -131,10 +131,10 @@ jobs:
         ./macpython-download-cache-and-build-module-wheels.sh $CMAKE_OPTIONS
 
     - name: Publish Python package as GitHub Artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: MacOSWheels
-        path: dist
+        path: dist/*.whl
 
   build-windows-python-packages:
     runs-on: windows-2022
@@ -180,11 +180,14 @@ jobs:
         $env:ITK_MODULE_PREQ = "${{ inputs.itk-module-deps }}"
         ./windows-download-cache-and-build-module-wheels.ps1 "${{ matrix.python-version-minor }}"
 
+        mkdir -p '${{ github.workspace }}\dist'
+        cp 'dist\*.whl' '${{ github.workspace }}\dist'
+
     - name: Publish Python package as GitHub Artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: WindowsWheel3.${{ matrix.python-version-minor }}
-        path: ../../im/dist
+        path: dist/*.whl
 
   publish-python-packages-to-pypi:
     needs:
