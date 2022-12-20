@@ -282,6 +282,23 @@ to direct workflow execution.
     itk-module-deps: 'InsightSoftwareConsortium/ITKMeshToPolyData@3ad8f08:InsightSoftwareConsortium/ITKBSplineGradient@0.3.0'
 ```
 
+- `manylinux-platforms`: List of [manylinux](https://github.com/pypa/manylinux)
+    specialization build targets for Linux Python module wheels. Manylinux "provides
+    a convenient way to distribute binary Python extensions as wheels on Linux";
+    see the [manylinux README](https://github.com/pypa/manylinux#manylinux) for more details.
+    A list entry includes both the name of the manylinux specialization, which is
+    related to the toolset to be used, and the platform architecture to target.
+    All supported specialization and architecture pairs are enabled by default
+    and listed in the example below, but can be disabled by removing them from the
+    input list in the calling external module workflow.
+    The list is colon-delimited and wheels will be built in the order provided.
+    The list is formatted as "<specialization>-<target_arch>:<specialization>-<target_arch>".
+
+```yaml
+  with:
+    manylinux-platforms: '_2_28-aarch64:_2_28-x64:2014-x64'
+```
+
 ## Contributing
 
 Community contributions to `ITKRemoteModuleBuildTestPackageAction` are welcome!
