@@ -70,6 +70,8 @@ jobs:
     - name: 'Build 🐍 Python 📦 package'
       shell: bash
       run: |
+        rm -rf dist
+
         export ITK_PACKAGE_VERSION=${{ inputs.itk-wheel-tag }}
         export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
@@ -118,6 +120,8 @@ jobs:
     - name: 'Build 🐍 Python 📦 package'
       shell: bash
       run: |
+        rm -rf dist
+
         export ITK_PACKAGE_VERSION=${{ inputs.itk-wheel-tag }}
         export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
@@ -170,6 +174,8 @@ jobs:
     - name: 'Build 🐍 Python 📦 package'
       shell: pwsh
       run: |
+        if (Test-Path dist) { rm dist -r -fo }
+
         cd ../../im
         & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
         $env:CC="cl.exe"
