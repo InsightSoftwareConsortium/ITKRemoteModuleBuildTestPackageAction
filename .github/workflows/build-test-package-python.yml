@@ -43,7 +43,7 @@ jobs:
         python-version: ["37", "38", "39", "310", "311"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: 'Free up disk space'
       run: |
@@ -99,7 +99,7 @@ jobs:
       max-parallel: 2
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: 'Specific XCode version'
       run: |
