@@ -70,6 +70,8 @@ jobs:
     - name: 'Build 🐍 Python 📦 package'
       shell: bash
       run: |
+        rm -rf dist
+
         export ITK_PACKAGE_VERSION=${{ inputs.itk-wheel-tag }}
         export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
@@ -88,10 +90,10 @@ jobs:
         done
 
     - name: Publish Python package as GitHub Artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: LinuxWheel${{ matrix.python-version }}
-        path: dist
+        path: dist/*.whl
 
   build-macos-python-packages:
     runs-on: macos-11
@@ -118,6 +120,8 @@ jobs:
     - name: 'Build 🐍 Python 📦 package'
       shell: bash
       run: |
+        rm -rf dist
+
         export ITK_PACKAGE_VERSION=${{ inputs.itk-wheel-tag }}
         export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
@@ -131,10 +135,10 @@ jobs:
         ./macpython-download-cache-and-build-module-wheels.sh $CMAKE_OPTIONS
 
     - name: Publish Python package as GitHub Artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: MacOSWheels
-        path: dist
+        path: dist/*.whl
 
   build-windows-python-packages:
     runs-on: windows-2022
@@ -170,6 +174,8 @@ jobs:
     - name: 'Build 🐍 Python 📦 package'
       shell: pwsh
       run: |
+        if (Test-Path dist) { rm dist -r -fo }
+
         cd ../../im
         & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
         $env:CC="cl.exe"
@@ -180,11 +186,14 @@ jobs:
         $env:ITK_MODULE_PREQ = "${{ inputs.itk-module-deps }}"
         ./windows-download-cache-and-build-module-wheels.ps1 "${{ matrix.python-version-minor }}"
 
+        mkdir -p '${{ github.workspace }}\dist'
+        cp 'dist\*.whl' '${{ github.workspace }}\dist'
+
     - name: Publish Python package as GitHub Artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: WindowsWheel3.${{ matrix.python-version-minor }}
-        path: ../../im/dist
+        path: dist/*.whl
 
   publish-python-packages-to-pypi:
     needs:
@@ -211,5 +220,6 @@ jobs:
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@v1.5.1
       with:
+        skip_existing: true
         user: __token__
         password: ${{ secrets.pypi_password }}
