@@ -36,9 +36,9 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        os: [ubuntu-20.04, windows-2022, macos-11]
+        os: [ubuntu-22.04, windows-2022, macos-11]
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             c-compiler: "gcc"
             cxx-compiler: "g++"
             cmake-build-type: "MinSizeRel"
