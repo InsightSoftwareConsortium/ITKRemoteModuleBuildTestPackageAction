@@ -36,7 +36,7 @@ on:
 
 jobs:
   build-linux-python-packages:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       max-parallel: 2
       matrix:
@@ -53,12 +53,6 @@ jobs:
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
         df -h
-
-    - name: 'Fetch build dependencies'
-      shell: bash
-      run: |
-        sudo apt install zstd
-        unzstd --version
 
     - name: 'Fetch build script'
       run: |
@@ -200,7 +194,7 @@ jobs:
       - build-linux-python-packages
       - build-macos-python-packages
       - build-windows-python-packages
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Download Python Packages
