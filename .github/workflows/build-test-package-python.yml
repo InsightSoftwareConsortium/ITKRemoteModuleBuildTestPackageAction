@@ -35,6 +35,11 @@ on:
         required: false
         type: string
         default: '["_2_28-x64","2014-x64","_2_28-aarch64"]'
+      test-notebooks:
+        description: 'Option to test Jupyter Notebooks in examples/ directory with applied changes'
+        required: false
+        type: boolean
+        default: false
     secrets:
       pypi_password:
         required: false  # Packages will not be uploaded to PyPI if not set
@@ -196,6 +201,50 @@ jobs:
       with:
         name: WindowsWheel3.${{ matrix.python-version-minor }}
         path: dist/*.whl
+
+  test-linux-notebooks:
+    if: inputs.test-notebooks
+    needs:
+      - build-linux-py
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install build dependencies
+        shell: bash
+        run: |
+          if [[ -f requirements.txt ]]; then
+            python -m pip install -r requirements.txt
+          elif [[ -f ./binder/requirements.txt ]]; then
+            python -m pip install -r ./binder/requirements.txt
+          fi
+          python -m pip install pytest nbmake
+
+      - name: Download Python Package Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: LinuxWheel310
+
+      - name: Install Python Package Artifact
+        run: |
+          ls .
+          wheel_name_full=`(find . -name "*cp310-manylinux_2_28_x86_64.whl")`
+          echo "wheel_name_full ${wheel_name_full}"
+          # extract wheel name which may be an abbreviation of the module name
+          # ex. ./itk_splitcomponents-cp310..._64.whl -> itk-splitcomponents
+          wheel_name_prefix=`(echo ${wheel_name_full} | cut -d'-' -f1 | cut -d'/' -f2 | sed -e 's/_/-/g')`
+          echo "wheel_name_prefix ${wheel_name_prefix}"
+          python -m pip uninstall ${wheel_name_prefix} -y
+          python -m pip install ${wheel_name_full}
+
+      - name: Test notebooks
+        run: |
+          pytest --nbmake --nbmake-timeout=30000 examples/*.ipynb
 
   publish-python-packages-to-pypi:
     needs:
