@@ -31,21 +31,23 @@ on:
         required: false
         type: string
       manylinux-platforms:
-        description: 'colon-delimited list of "<manylinux-image>-<arch>" specializations'
+        description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
         required: false
         type: string
-        default: "_2_28-x64:2014-x64:_2_28-aarch64"
+        default: '["_2_28-x64","2014-x64","_2_28-aarch64"]'
     secrets:
       pypi_password:
         required: false  # Packages will not be uploaded to PyPI if not set
 
 jobs:
+
   build-linux-python-packages:
     runs-on: ubuntu-22.04
     strategy:
       max-parallel: 2
       matrix:
         python-version: ["37", "38", "39", "310", "311"]
+        manylinux-platform: ${{ fromJSON(inputs.manylinux-platforms) }}
 
     steps:
     - uses: actions/checkout@v3
@@ -81,14 +83,13 @@ jobs:
           CMAKE_OPTIONS="--cmake_options ${{ inputs.cmake-options }}"
         fi
 
-        MANYLINUX_PLATFORMS=${{ inputs.manylinux-platforms }}
-        for manylinux_version in ${MANYLINUX_PLATFORMS//:/ }; do
-          rm -rf ITKPythonPackage
-          export MANYLINUX_VERSION=`(echo ${manylinux_version} | cut -d '-' -f 1)`
-          export TARGET_ARCH=`(echo ${manylinux_version} | cut -d '-' -f 2)`
-          echo "Building for manylinux specialization ${MANYLINUX_VERSION} and target architecture ${TARGET_ARCH}"
-          ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp${{ matrix.python-version }} $CMAKE_OPTIONS
-        done
+        MANYLINUX_PLATFORM=${{ matrix.manylinux-platform }}
+        echo "Manylinux platform ${MANYLINUX_PLATFORM}"
+        rm -rf ITKPythonPackage
+        export MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
+        export TARGET_ARCH=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)`
+        echo "Building for manylinux specialization ${MANYLINUX_VERSION} and target architecture ${TARGET_ARCH}"
+        ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp${{ matrix.python-version }} $CMAKE_OPTIONS
 
     - name: Publish Python package as GitHub Artifact
       uses: actions/upload-artifact@v3
