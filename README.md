@@ -300,6 +300,18 @@ to direct workflow execution.
     manylinux-platforms: '["_2_28-x64","2014-x64","_2_28-aarch64"]'
 ```
 
+- `test-notebooks`: Boolean option to test Jupyter Notebook examples located in the
+    `examples/` directory of the external module. A `requirements.txt` file
+    should be provided in either the external module root or `binder/` directories
+    to indicate notebook prerequisites for testing. Default value is `false`, notebook
+    tests may be enabled for a repository containing notebook examples by setting
+    the value to `true`.
+
+```yaml
+  with:
+    test-notebooks: true
+```
+
 ## Contributing
 
 Community contributions to `ITKRemoteModuleBuildTestPackageAction` are welcome!
