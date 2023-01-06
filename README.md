@@ -316,7 +316,9 @@ to direct workflow execution.
 
 Community contributions to `ITKRemoteModuleBuildTestPackageAction` are welcome!
 
-Please see [ITK's CONTRIBUTING.MD](https://github.com/InsightSoftwareConsortium/ITK/blob/master/CONTRIBUTING.md)
+Please read [CONTRIBUTING.md](docs/CONTRIBUTING.md) for testing instructions and best practices
+before opening a pull request to contribute your changes. Also see
+[ITK's contributing documentation](https://github.com/InsightSoftwareConsortium/ITK/blob/master/CONTRIBUTING.md)
 for general best practices regarding ITK and external modules.
 
 Workflow issues may be submitted to the `ITKRemoteModuleBuildTestPackageAction`
