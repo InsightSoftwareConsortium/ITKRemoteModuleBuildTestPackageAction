@@ -124,10 +124,12 @@ jobs:
         name: LinuxWheel${{ matrix.python-version }}
         path: dist/*.whl
 
-  build-macos-python-packages:
+  build-macos-py:
     runs-on: macos-12
     strategy:
       max-parallel: 2
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
     steps:
     - uses: actions/checkout@v3
@@ -161,7 +163,7 @@ jobs:
         else
           CMAKE_OPTIONS="--cmake_options ${{ inputs.cmake-options }}"
         fi
-        ./macpython-download-cache-and-build-module-wheels.sh $CMAKE_OPTIONS
+        ./macpython-download-cache-and-build-module-wheels.sh $CMAKE_OPTIONS "${{ matrix.python-version }}"
 
     - name: Set up Python 3.10
       uses: actions/setup-python@v4
@@ -175,7 +177,7 @@ jobs:
         ls dist/
 
         WHEEL_PATTERN="dist/itk_*macosx*.whl"
-        EXPECTED_WHEEL_COUNT=5
+        EXPECTED_WHEEL_COUNT=1
 
         WHEEL_COUNT=`(ls ${WHEEL_PATTERN} | wc -l)`
         if (( ${WHEEL_COUNT} != ${EXPECTED_WHEEL_COUNT} )); then
@@ -309,7 +311,7 @@ jobs:
   publish-python-packages-to-pypi:
     needs:
       - build-linux-py
-      - build-macos-python-packages
+      - build-macos-py
       - build-windows-python-packages
     runs-on: ubuntu-22.04
 
