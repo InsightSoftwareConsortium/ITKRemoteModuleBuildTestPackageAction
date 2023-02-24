@@ -19,7 +19,7 @@ on:
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
-        default: 'cc3cbd2edd350d193536d78c5f8ee5ace1e6defd'
+        default: 'ee05fd4fa5feedc32afbed32b84b9c9eb0518036'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
@@ -237,7 +237,7 @@ jobs:
         $env:ITKPYTHONPACKAGE_TAG = "${{ inputs.itk-python-package-tag }}"
         $env:ITKPYTHONPACKAGE_ORG = "${{ inputs.itk-python-package-org }}"
         $env:ITK_MODULE_PREQ = "${{ inputs.itk-module-deps }}"
-        ./windows-download-cache-and-build-module-wheels.ps1 "${{ matrix.python-version-minor }}"
+        ./windows-download-cache-and-build-module-wheels.ps1 "${{ matrix.python-version-minor }}" -cmake_options "${{ inputs.cmake-options }}"
 
         mkdir -p '${{ github.workspace }}\dist'
         cp 'dist\*.whl' '${{ github.workspace }}\dist'
