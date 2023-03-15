@@ -17,6 +17,7 @@ or at the [ITK GitHub homepage](https://github.com/insightSoftwareConsortium/ITK
   - [`build-test-cxx` Overview](#build-test-cxx-overview)
   - [`build-test-package-python` Overview](#build-test-package-python-overview)
 - [Contributing](#contributing)
+- [Frequently Asked Questions](#frequently-asked-questions)
 - [Additional Notes](#additional-notes)
 - [Community Discussion](#community-discussion)
 - [License](#license)
@@ -324,6 +325,37 @@ for general best practices regarding ITK and external modules.
 Workflow issues may be submitted to the `ITKRemoteModuleBuildTestPackageAction`
 [issue tracker](https://github.com/InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/issues)
 on GitHub.
+
+## Frequently Asked Questions
+
+### What target platforms and architectures are supported?
+
+The `build-test-cxx` workflow supports building and running C++ tests on GitHub Actions runner images for
+Windows, Linux, and macOS. Image details are available [here](https://github.com/actions/runner-images).
+
+The `build-test-package-python.yml` workflow supports Python package generation for the following platforms and architectures:
+- Windows 10 x86_64 platforms
+- Windows 11 x86_64 platforms
+- macOS 10.9+ x86_64 platforms
+- Linux glibc 2.17+ (E.g. Ubuntu 18.04+) x86_64 platforms
+- Linux glibc 2.28+ (E.g. Ubuntu 20.04+) aarch64 (ARMv8) platforms
+
+The workflow does not support macOS ARM (Apple Silicon) packages for ITK external modules at this time.
+See [GitHub Roadmap issue #528](https://github.com/github/roadmap/issues/528).
+
+### What should I do if my target platform/architecture does not appear on the list above?
+
+Collaborators may build macOS ARM packages manually with
+[ITKPythonPackage](https://github.com/insightSoftwareConsortium/ITKPythonPackage) scripts and an Apple Silicon (M1 or M2) machine.
+
+[`itk-wasm`](https://github.com/InsightSoftwareConsortium/itk-wasm) is another experimental path for reproducible execution
+across architectures, with planned support for ITK external module Python distributions.
+Read more at [https://wasm.itk.org/](https://wasm.itk.org/).
+
+If the answers above do not meet your platform needs, please open an issue in the
+[project issue tracker](https://github.com/InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/issues)
+for discussion, and consider contributing either time or funding to support development. The ITK open source ecosystem
+is driven through contributions from its community members.
 
 ## Additional Notes
 
