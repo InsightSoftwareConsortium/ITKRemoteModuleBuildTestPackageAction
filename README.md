@@ -283,6 +283,18 @@ to direct workflow execution.
     itk-module-deps: 'InsightSoftwareConsortium/ITKMeshToPolyData@3ad8f08:InsightSoftwareConsortium/ITKBSplineGradient@0.3.0'
 ```
 
+- `python3-minor-versions`: Array of Python 3.x wheel minor versions to target for building.
+    The array follows [JavaScript Object Notation (JSON)](https://www.json.org/json-en.html) syntax
+    and GHA jobs will launch in the order provided. One wheel is built per Python version and
+    target platform. The first listed Python version may also be used for running Linux notebook tests
+    if enabled. The default value is a list of [currently supported Python versions](https://devguide.python.org/versions/)
+    ascending from oldest to newest.
+
+```yaml
+  with:
+    python3-minor-versions: '["7","8","9","10","11"]` # Builds for Python 3.7 through 3.11
+```
+
 - `manylinux-platforms`: Array of [manylinux](https://github.com/pypa/manylinux)
     specialization build targets for Linux Python module wheels. Manylinux "provides
     a convenient way to distribute binary Python extensions as wheels on Linux";
@@ -304,7 +316,9 @@ to direct workflow execution.
 - `test-notebooks`: Boolean option to test Jupyter Notebook examples located in the
     `examples/` directory of the external module. A `requirements.txt` file
     should be provided in either the external module root or `binder/` directories
-    to indicate notebook prerequisites for testing. Default value is `false`, notebook
+    to indicate notebook prerequisites for testing. The first Python version listed in
+    `python3-minor-versions` will be used, i.e. if "9" is listed first then notebook
+    tests will be run with Python 3.9. Default value is `false`, notebook
     tests may be enabled for a repository containing notebook examples by setting
     the value to `true`.
 

@@ -19,7 +19,7 @@ on:
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
-        default: 'ee05fd4fa5feedc32afbed32b84b9c9eb0518036'
+        default: 'dc6a18600233ac69a8f42b7489e4edf6a5d8883a'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
@@ -30,6 +30,11 @@ on:
         # example: InsightSoftwareConsortium/ITKMeshToPolyData@3ad8f08:InsightSoftwareConsortium/ITKBSplineGradient@0.3.0
         required: false
         type: string
+      python3-minor-versions:
+        description: 'JSON-formatted array of Python 3.x minor version wheel targets'
+        required: false
+        type: string
+        default: '["7","8","9","10","11"]'
       manylinux-platforms:
         description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
         required: false
@@ -51,7 +56,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        python-version: ["37", "38", "39", "310", "311"]
+        python3-minor-version: ${{ fromJSON(inputs.python3-minor-versions) }}
         manylinux-platform: ${{ fromJSON(inputs.manylinux-platforms) }}
 
     steps:
@@ -94,9 +99,10 @@ jobs:
         export MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
         export TARGET_ARCH=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)`
         echo "Building for manylinux specialization ${MANYLINUX_VERSION} and target architecture ${TARGET_ARCH}"
-        ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp${{ matrix.python-version }} $CMAKE_OPTIONS
 
-    - name: Set up Python 3.10
+        ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS
+
+    - name: Set up Python 3.10 for Validation
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
@@ -113,7 +119,7 @@ jobs:
         if [[ ${TARGET_ARCH_NAME} == "x64" ]]; then
           TARGET_ARCH_NAME="x86_64" # Match auditwheel naming convention
         fi
-        WHEEL_PATTERN="dist/itk_*cp${{ matrix.python-version }}*manylinux${MANYLINUX_VERSION}*${TARGET_ARCH_NAME}.whl"
+        WHEEL_PATTERN="dist/itk_*cp3${{ matrix.python3-minor-version }}*manylinux${MANYLINUX_VERSION}*${TARGET_ARCH_NAME}.whl"
 
         echo "Searching for wheels matching pattern ${WHEEL_PATTERN}"
         python -m twine check ${WHEEL_PATTERN}
@@ -121,7 +127,7 @@ jobs:
     - name: Publish Python package as GitHub Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: LinuxWheel${{ matrix.python-version }}
+        name: LinuxWheel3${{ matrix.python3-minor-version }}
         path: dist/*.whl
 
   build-macos-py:
@@ -129,7 +135,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python3-minor-version: ${{ fromJSON(inputs.python3-minor-versions) }}
 
     steps:
     - uses: actions/checkout@v3
@@ -163,9 +169,9 @@ jobs:
         else
           CMAKE_OPTIONS="--cmake_options ${{ inputs.cmake-options }}"
         fi
-        ./macpython-download-cache-and-build-module-wheels.sh $CMAKE_OPTIONS "${{ matrix.python-version }}"
+        ./macpython-download-cache-and-build-module-wheels.sh $CMAKE_OPTIONS "3.${{ matrix.python3-minor-version }}"
 
-    - name: Set up Python 3.10
+    - name: Set up Python 3.10 for Validation
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
@@ -190,7 +196,7 @@ jobs:
     - name: Publish Python package as GitHub Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: MacOSWheels
+        name: MacOSWheel3${{ matrix.python3-minor-version }}
         path: dist/*.whl
 
   build-windows-python-packages:
@@ -198,7 +204,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        python-version-minor: ["7", "8", "9", "10", "11"]
+        python3-minor-version: ${{ fromJSON(inputs.python3-minor-versions) }}
 
     steps:
     - name: Get specific version of CMake, Ninja
@@ -237,23 +243,24 @@ jobs:
         $env:ITKPYTHONPACKAGE_TAG = "${{ inputs.itk-python-package-tag }}"
         $env:ITKPYTHONPACKAGE_ORG = "${{ inputs.itk-python-package-org }}"
         $env:ITK_MODULE_PREQ = "${{ inputs.itk-module-deps }}"
-        ./windows-download-cache-and-build-module-wheels.ps1 "${{ matrix.python-version-minor }}" -cmake_options "${{ inputs.cmake-options }}"
+
+        ./windows-download-cache-and-build-module-wheels.ps1 "${{ matrix.python3-minor-version }}" -cmake_options "${{ inputs.cmake-options }}"
 
         mkdir -p '${{ github.workspace }}\dist'
         cp 'dist\*.whl' '${{ github.workspace }}\dist'
 
-    - name: Set up Python 3.10
+    - name: Set up Python 3.10 for Validation
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
 
     - name: Validate build output
-      shell: bash
+      shell: pwsh
       run: |
         python -m pip install twine
         ls dist/
 
-        WHEEL_PATTERN="dist/itk_*cp3${{ matrix.python-version-minor }}*win*.whl"
+        $WHEEL_PATTERN = "dist/itk_*cp3${{ matrix.python3-minor-version }}*win*.whl"
         echo "Searching for wheels matching pattern ${WHEEL_PATTERN}"
 
         python -m twine check ${WHEEL_PATTERN}
@@ -261,7 +268,7 @@ jobs:
     - name: Publish Python package as GitHub Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: WindowsWheel3.${{ matrix.python-version-minor }}
+        name: WindowsWheel3${{ matrix.python3-minor-version }}
         path: dist/*.whl
 
   test-linux-notebooks:
@@ -275,7 +282,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: "3.${{ fromJSON(inputs.python3-minor-versions)[0] }}"
 
       - name: Install build dependencies
         shell: bash
@@ -290,12 +297,12 @@ jobs:
       - name: Download Python Package Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: LinuxWheel310
+          name: LinuxWheel3${{ fromJSON(inputs.python3-minor-versions)[0] }}
 
       - name: Install Python Package Artifact
         run: |
           ls .
-          wheel_name_full=`(find . -name "*cp310-manylinux_2_28_x86_64.whl")`
+          wheel_name_full=`(find . -name "*cp3${{ fromJSON(inputs.python3-minor-versions)[0] }}*-manylinux_2_28_x86_64.whl")`
           echo "wheel_name_full ${wheel_name_full}"
           # extract wheel name which may be an abbreviation of the module name
           # ex. ./itk_splitcomponents-cp310..._64.whl -> itk-splitcomponents
