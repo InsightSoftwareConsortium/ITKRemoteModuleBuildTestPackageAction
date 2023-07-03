@@ -236,7 +236,7 @@ jobs:
         if (Test-Path dist) { rm dist -r -fo }
 
         cd ../../im
-        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
+        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64 -SkipAutomaticLocation
         $env:CC="cl.exe"
         $env:CXX="cl.exe"
         $env:ITK_PACKAGE_VERSION = "${{ inputs.itk-wheel-tag }}"

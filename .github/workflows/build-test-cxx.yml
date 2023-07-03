@@ -109,7 +109,7 @@ jobs:
       run: |
         Set-PSDebug -Trace 1
         cd ..
-        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
+        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64 -SkipAutomaticLocation
         mkdir ITK-build
         cd ITK-build
 
@@ -192,5 +192,5 @@ jobs:
       if: matrix.os == 'windows-2022'
       shell: pwsh
       run: |
-        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64
+        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64 -SkipAutomaticLocation
         ctest --output-on-failure -j 2 -V -S dashboard.cmake ${{ inputs.ctest-options }}
