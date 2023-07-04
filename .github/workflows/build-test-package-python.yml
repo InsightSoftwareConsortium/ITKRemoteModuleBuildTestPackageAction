@@ -87,7 +87,7 @@ jobs:
         export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
         export ITK_MODULE_PREQ=${{ inputs.itk-module-deps }}
-        if [ -z ${{ inputs.cmake-options }}]; then
+        if [ -z ${{ inputs.cmake-options }} ]; then
           CMAKE_OPTIONS=""
         else
           CMAKE_OPTIONS="--cmake_options ${{ inputs.cmake-options }}"
@@ -164,7 +164,7 @@ jobs:
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
         export ITK_MODULE_PREQ=${{ inputs.itk-module-deps }}
         export MACOSX_DEPLOYMENT_TARGET=10.9
-        if [ -z ${{ inputs.cmake-options }}]; then
+        if [ -z ${{ inputs.cmake-options }} ]; then
           CMAKE_OPTIONS=""
         else
           CMAKE_OPTIONS="--cmake_options ${{ inputs.cmake-options }}"
