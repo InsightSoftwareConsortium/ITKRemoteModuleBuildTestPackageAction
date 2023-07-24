@@ -19,7 +19,7 @@ on:
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
-        default: 'dc6a18600233ac69a8f42b7489e4edf6a5d8883a'
+        default: '26d0b48d13c485ad36997e8210088dc1fe50f469'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
@@ -34,7 +34,7 @@ on:
         description: 'JSON-formatted array of Python 3.x minor version wheel targets'
         required: false
         type: string
-        default: '["7","8","9","10","11"]'
+        default: '["8","9","10","11"]'
       manylinux-platforms:
         description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
         required: false
