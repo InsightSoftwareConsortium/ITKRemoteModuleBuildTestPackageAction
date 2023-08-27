@@ -315,12 +315,31 @@ jobs:
         run: |
           pytest --nbmake --nbmake-timeout=30000 examples/*.ipynb
 
+  check-secret:
+    runs-on: ubuntu-latest
+    outputs:
+      pypi-password-exists: ${{ steps.pypi-password-check.outputs.defined }}
+    steps:
+      - name: Check for Secret availability
+        id: pypi-password-check
+        # perform secret check & put boolean result as an output
+        shell: bash
+        run: |
+          if [ "${{ secrets.PYPI_PASSWORD }}" != '' ]; then
+            echo "defined=true" >> $GITHUB_OUTPUT;
+          else
+            echo "defined=false" >> $GITHUB_OUTPUT;
+          fi
+
   publish-python-packages-to-pypi:
     needs:
+      - check-secret
       - build-linux-py
       - build-macos-py
       - build-windows-python-packages
     runs-on: ubuntu-22.04
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
 
     steps:
     - name: Download Python Packages
@@ -336,10 +355,15 @@ jobs:
         mv *.whl dist/
         ls dist
 
+
     - name: Publish 🐍 Python 📦 package to PyPI
-      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      uses: pypa/gh-action-pypi-publish@v1.5.1
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && needs.check-secret.outputs.pypi-password-exists == 'true'
+      uses: pypa/gh-action-pypi-publish@v1.8.10
       with:
         skip_existing: true
         user: __token__
         password: ${{ secrets.pypi_password }}
+
+    - name: Publish 🐍 Python 📦 package to PyPI
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && needs.check-secret.outputs.pypi-password-exists != 'true'
+      uses: pypa/gh-action-pypi-publish@v1.8.10

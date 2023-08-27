@@ -93,8 +93,6 @@ jobs:
 
   python-build-workflow:
     uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@d4a5ce4f219b66b78269a15392e15c95f90e7e00
-    secrets:
-      pypi_password: ${{ secrets.pypi_password }}
 ```
 
 The example above can be broken down line by line:
@@ -137,13 +135,9 @@ certain modules are built before the external module itself is subsequently buil
 Tells GHA to fetch and run the `build-test-package-python.yml` workflow.
 A commit hash or tagged version may be provided.
 
-```yaml
-  secrets:
-    pypi_password: ${{ secrets.pypi_password }}
-```
-Passes a secret from the external module repository to the workflow.
-In this case the `pypi_password` secret is required for automatically uploading
-Python wheel to the [Python Package Index (PyPI)](https://pypi.org/) for distribution.
+Configuration for automatically uploading Python wheel to the [Python Package Index (PyPI)](https://pypi.org/)
+for distribution is required on PyPI to enable [trusted publishing from the
+GitHub Repository](https://docs.pypi.org/trusted-publishers/).
 
 ITKSplitComponents is one example of an external module leveraging reusable workflows for continuous integration.
 Refer to [ITKSplitComponent's GHA workflow](https://github.com/InsightSoftwareConsortium/ITKSplitComponents/blob/master/.github/workflows/build-test-package.yml)
