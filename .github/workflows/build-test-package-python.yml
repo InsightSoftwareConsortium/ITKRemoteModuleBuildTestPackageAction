@@ -136,11 +136,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Free Disk Space (Ubuntu)
-      uses: jlumbroso/free-disk-space@main
-      with:
-        large-packages: false
-
     - name: 'Specific XCode version'
       run: |
         sudo xcode-select -s "/Applications/Xcode_13.2.1.app"
@@ -214,11 +209,6 @@ jobs:
     - uses: actions/checkout@v3
       with:
         path: "im"
-
-    - name: Free Disk Space (Ubuntu)
-      uses: jlumbroso/free-disk-space@main
-      with:
-        large-packages: false
 
     - name: 'Reduce source path length'
       shell: bash
