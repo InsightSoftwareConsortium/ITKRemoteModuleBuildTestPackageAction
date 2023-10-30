@@ -66,7 +66,7 @@ jobs:
 
     - name: Get specific version of CMake, Ninja
       uses: lukka/get-cmake@v3.24.2
-      
+
     - name: 'Specific XCode version'
       if: matrix.os == 'macos-12'
       run: |
@@ -99,7 +99,7 @@ jobs:
         if [[ -n $MODULE_ARGS ]]; then
           echo "Building with modules: $MODULE_ARGS"
         fi
-        
+
         cmake -DCMAKE_C_COMPILER:FILEPATH="${{ matrix.c-compiler }}" -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" -DCMAKE_BUILD_TYPE:STRING=${{ matrix.cmake-build-type }} -DBUILD_TESTING:BOOL=OFF ${{ inputs.itk-cmake-options }} ${MODULE_ARGS} -GNinja ../ITK
         ninja
 
@@ -129,7 +129,7 @@ jobs:
         if($MODULE_ARGS) {
           echo "Building with parameters: ${{ inputs.itk-cmake-options }} $MODULE_ARGS"
         }
-        
+
         cmake -DCMAKE_C_COMPILER:FILEPATH="${{ matrix.c-compiler }}" -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" -DCMAKE_BUILD_TYPE:STRING=${{ matrix.cmake-build-type }} -DBUILD_TESTING:BOOL=OFF ${{ inputs.itk-cmake-options }} $MODULE_ARGS.split(" ") -GNinja ../ITK
         ninja
 
