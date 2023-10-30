@@ -13,13 +13,13 @@ on:
         description: 'Github release version tag for the ITKPythonBuilds build archive to use'
         required: false
         type: string
-        default: 'v5.4rc01'
+        default: 'v5.4rc02'
       itk-python-package-tag:
         # See https://github.com/InsightSoftwareConsortium/ITKPythonPackage
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
-        default: '5ad02309321621cdc7269b9b68a35013c912271c'
+        default: 'v5.4rc02'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
