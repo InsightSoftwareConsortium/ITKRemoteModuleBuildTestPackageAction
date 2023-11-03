@@ -283,7 +283,9 @@ jobs:
       - name: Install build dependencies
         shell: bash
         run: |
-          if [[ -f requirements.txt ]]; then
+          if [[ -f ./examples/requirements.txt ]]; then
+            python -m pip install -r ./examples/requirements.txt
+          elif [[ -f requirements.txt ]]; then
             python -m pip install -r requirements.txt
           elif [[ -f ./binder/requirements.txt ]]; then
             python -m pip install -r ./binder/requirements.txt
