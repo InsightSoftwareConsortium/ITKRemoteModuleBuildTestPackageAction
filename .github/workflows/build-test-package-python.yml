@@ -34,7 +34,7 @@ on:
         description: 'JSON-formatted array of Python 3.x minor version wheel targets'
         required: false
         type: string
-        default: '["7","8","9","10","11"]'
+        default: '["8","9","10","11"]'
       manylinux-platforms:
         description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
         required: false
