@@ -23,7 +23,7 @@ on:
         description: 'Git version tag or commit hash for the base ITK build'
         required: false
         type: string
-        default: 'v5.4rc02'
+        default: 'v5.4rc03'
       itk-module-deps:
         description: 'Colon-delimited list of ITK remote module dependencies to build. Format as module_name@tag:...'
         # example: MeshToPolyData@3ad8f08:BSplineGradient@0.3.0
@@ -81,7 +81,7 @@ jobs:
     - name: Download ITK
       run: |
         cd ..
-        git clone https://github.com/InsightSoftwareConsortium/ITK.git
+        git clone https://github.com/thewtex/ITK.git
         cd ITK
         git checkout ${{ inputs.itk-git-tag }}
 
