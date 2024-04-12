@@ -125,7 +125,7 @@ jobs:
     - name: Publish Python package as GitHub Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: LinuxWheel3${{ matrix.python3-minor-version }}
+        name: LinuxWheel3${{ matrix.python3-minor-version }}${{ matrix.manylinux-platform }}
         path: dist/*.whl
 
   build-macos-py:
