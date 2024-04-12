@@ -19,7 +19,8 @@ on:
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
-        default: 'e80c3754b472f16e61756f3988cf876c2a7bf097'
+        # macos-arm-remote branch
+        default: '81be125a547ba2fa2343ae36cce8812bd711c5b4'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
