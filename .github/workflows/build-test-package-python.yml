@@ -214,6 +214,7 @@ jobs:
       uses: lukka/get-cmake@v3.29.0
 
     - name: 'Fetch build script'
+      if: matrix.python3-minor-version != '8'
       run: |
         IPP_DOWNLOAD_GIT_TAG=${{ inputs.itk-python-package-tag }}
         IPP_DOWNLOAD_ORG=${{ inputs.itk-python-package-org }}
@@ -221,6 +222,7 @@ jobs:
         chmod u+x macpython-download-cache-and-build-module-wheels.sh
 
     - name: 'Build 🐍 Python 📦 package'
+      if: matrix.python3-minor-version != '8'
       shell: bash
       run: |
         rm -rf dist
@@ -243,6 +245,7 @@ jobs:
         python-version: "3.11"
 
     - name: Validate build output
+      if: matrix.python3-minor-version != '8'
       shell: bash
       run: |
         python -m pip install twine
@@ -260,6 +263,7 @@ jobs:
         python -m twine check ${WHEEL_PATTERN}
 
     - name: Publish Python package as GitHub Artifact
+      if: matrix.python3-minor-version != '8'
       uses: actions/upload-artifact@v4
       with:
         name: MacOSArmWheel3${{ matrix.python3-minor-version }}
