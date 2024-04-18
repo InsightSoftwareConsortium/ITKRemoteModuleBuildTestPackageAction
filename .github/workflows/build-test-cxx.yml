@@ -23,8 +23,7 @@ on:
         description: 'Git version tag or commit hash for the base ITK build'
         required: false
         type: string
-        # v5.4rc03 + fixes
-        default: '65306d5f6230eb3c5dc9a5df89a4740ba383041e'
+        default: 'v5.4rc04'
       itk-module-deps:
         description: 'Colon-delimited list of ITK remote module dependencies to build. Format as module_name@tag:...'
         # example: MeshToPolyData@3ad8f08:BSplineGradient@0.3.0

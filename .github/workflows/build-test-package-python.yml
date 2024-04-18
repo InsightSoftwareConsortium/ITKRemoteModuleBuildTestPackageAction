@@ -13,13 +13,13 @@ on:
         description: 'Github release version tag for the ITKPythonBuilds build archive to use'
         required: false
         type: string
-        default: 'v5.4rc03'
+        default: 'v5.4rc04'
       itk-python-package-tag:
         # See https://github.com/InsightSoftwareConsortium/ITKPythonPackage
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
-        default: 'c208ebbc852d60fbdfa3901be79987ff63fe8aba'
+        default: 'v5.4rc04'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
@@ -39,8 +39,7 @@ on:
         description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
         required: false
         type: string
-          # default: '["_2_28-x64","2014-x64","_2_28-aarch64"]'
-        default: '["_2_28-x64","2014-x64"]'
+        default: '["_2_28-x64","2014-x64","_2_28-aarch64"]'
       test-notebooks:
         description: 'Option to test Jupyter Notebooks in examples/ directory with applied changes'
         required: false
@@ -240,7 +239,7 @@ jobs:
         ./macpython-download-cache-and-build-module-wheels.sh $CMAKE_OPTIONS "3.${{ matrix.python3-minor-version }}"
 
     - name: Set up Python 3.11 for Validation
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
 
