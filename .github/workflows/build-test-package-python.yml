@@ -368,7 +368,7 @@ jobs:
       - name: Download Python Package Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: LinuxWheel3${{ fromJSON(inputs.python3-minor-versions)[0] }}
+          name: LinuxWheel3${{ fromJSON(inputs.python3-minor-versions)[0] }}_2_28-x64
 
       - name: Install Python Package Artifact
         run: |
