@@ -313,7 +313,12 @@ jobs:
         $env:ITKPYTHONPACKAGE_ORG = "${{ inputs.itk-python-package-org }}"
         $env:ITK_MODULE_PREQ = "${{ inputs.itk-module-deps }}"
 
-        ./windows-download-cache-and-build-module-wheels.ps1 "${{ matrix.python3-minor-version }}" -cmake_options "${{ inputs.cmake-options }}"
+        # Put each (space separated) option in CMAKE_OPTIONS between quotes
+        $CMAKE_OPTIONS = "${{ inputs.cmake-options }}" -Replace ' ', '" "'
+        if("$cmake_options".length -gt 0) {
+          $CMAKE_OPTIONS = """${CMAKE_OPTIONS}"""
+        }
+        ./windows-download-cache-and-build-module-wheels.ps1 "${{ matrix.python3-minor-version }}" -cmake_options "${CMAKE_OPTIONS}"
 
         mkdir -p '${{ github.workspace }}\dist'
         cp 'dist\*.whl' '${{ github.workspace }}\dist'
