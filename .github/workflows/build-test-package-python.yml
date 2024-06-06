@@ -19,7 +19,8 @@ on:
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
-        default: 'v5.4.0'
+        # v5.4.0 + fixes
+        default: '9a08b25eece8a3332c6f93cfb1e60580c521bfc3'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
