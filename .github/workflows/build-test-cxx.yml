@@ -145,7 +145,7 @@ jobs:
           echo "Building with parameters: ${{ inputs.itk-cmake-options }} $MODULE_ARGS"
         }
 
-        cmake -DCMAKE_C_COMPILER:FILEPATH="${{ matrix.c-compiler }}" -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" -DCMAKE_BUILD_TYPE:STRING=${{ matrix.cmake-build-type }} -DBUILD_TESTING:BOOL=OFF ${{ inputs.itk-cmake-options }} $MODULE_ARGS.split(" ") -GNinja ../ITK
+        cmake -DCMAKE_C_COMPILER:FILEPATH="${{ matrix.c-compiler }}" -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" -DCMAKE_BUILD_TYPE:STRING=${{ matrix.cmake-build-type }} -DBUILD_TESTING:BOOL=OFF -DCMAKE_CXX_FLAGS=" /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR" ${{ inputs.itk-cmake-options }} $MODULE_ARGS.split(" ") -GNinja ../ITK
         ninja
 
     - name: Fetch CTest driver script
