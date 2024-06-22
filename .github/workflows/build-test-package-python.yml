@@ -20,7 +20,7 @@ on:
         required: false
         type: string
         # v5.4.0 + fixes
-        default: '9a08b25eece8a3332c6f93cfb1e60580c521bfc3'
+        default: 'a52d9b596b4f0da5ddb770ee99851e5c65ca3053'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
