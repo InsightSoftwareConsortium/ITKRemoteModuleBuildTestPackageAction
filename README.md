@@ -351,16 +351,11 @@ The `build-test-package-python.yml` workflow supports Python package generation 
 - Windows 10 x86_64 platforms
 - Windows 11 x86_64 platforms
 - macOS 10.9+ x86_64 platforms
+- macOS 11.0+ ARM64 platforms
 - Linux glibc 2.17+ (E.g. Ubuntu 18.04+) x86_64 platforms
 - Linux glibc 2.28+ (E.g. Ubuntu 20.04+) aarch64 (ARMv8) platforms
 
-The workflow does not support macOS ARM (Apple Silicon) packages for ITK external modules at this time.
-See [GitHub Roadmap issue #528](https://github.com/github/roadmap/issues/528).
-
 ### What should I do if my target platform/architecture does not appear on the list above?
-
-Collaborators may build macOS ARM packages manually with
-[ITKPythonPackage](https://github.com/insightSoftwareConsortium/ITKPythonPackage) scripts and an Apple Silicon (M1 or M2) machine.
 
 [`itk-wasm`](https://github.com/InsightSoftwareConsortium/itk-wasm) is another experimental path for reproducible execution
 across architectures, with planned support for ITK external module Python distributions.
