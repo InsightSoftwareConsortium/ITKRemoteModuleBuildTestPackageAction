@@ -75,7 +75,7 @@ jobs:
         python -m pip install ninja
 
     - name: Get specific version of CMake, Ninja
-      uses: lukka/get-cmake@v3.24.2
+      uses: lukka/get-cmake@v3.29.0
 
     - name: 'Specific XCode version'
       if: matrix.os == 'macos-12'
