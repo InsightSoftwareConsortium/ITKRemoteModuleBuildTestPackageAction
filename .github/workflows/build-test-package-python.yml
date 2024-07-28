@@ -135,7 +135,7 @@ jobs:
         python3-minor-version: ${{ fromJSON(inputs.python3-minor-versions) }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: 'Specific XCode version'
       run: |
