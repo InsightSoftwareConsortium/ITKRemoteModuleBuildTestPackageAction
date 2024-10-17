@@ -41,6 +41,11 @@ on:
         required: false
         type: string
         default: '["_2_28-x64","2014-x64","_2_28-aarch64"]'
+      macosx-deployment-target:
+        description: 'A string to provide as MACOSX_DEPLOYMENT_TARGET, e.g. "10.15". If left empty (default), the per-architecture default will be used.'
+        required: false
+        type: string
+        default: ''
       test-notebooks:
         description: 'Option to test Jupyter Notebooks in examples/ directory with applied changes'
         required: false
@@ -160,7 +165,11 @@ jobs:
         export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
         export ITK_MODULE_PREQ=${{ inputs.itk-module-deps }}
-        export MACOSX_DEPLOYMENT_TARGET=10.9
+        if [ -z ${{ inputs.macosx-deployment-target }} ]; then
+          export MACOSX_DEPLOYMENT_TARGET=10.9
+        else
+          export MACOSX_DEPLOYMENT_TARGET=${{ inputs.macosx-deployment-target }}
+        fi
         if [ -z ${{ inputs.cmake-options }} ]; then
           CMAKE_OPTIONS=""
         else
@@ -231,7 +240,11 @@ jobs:
         export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
         export ITK_MODULE_PREQ=${{ inputs.itk-module-deps }}
-        export MACOSX_DEPLOYMENT_TARGET=11.0
+        if [ -z ${{ inputs.macosx-deployment-target }} ]; then
+          export MACOSX_DEPLOYMENT_TARGET=11.0
+        else
+          export MACOSX_DEPLOYMENT_TARGET=${{ inputs.macosx-deployment-target }}
+        fi
         if [ -z ${{ inputs.cmake-options }} ]; then
           CMAKE_OPTIONS=""
         else
