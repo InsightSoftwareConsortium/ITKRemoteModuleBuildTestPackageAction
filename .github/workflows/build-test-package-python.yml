@@ -13,14 +13,14 @@ on:
         description: 'Github release version tag for the ITKPythonBuilds build archive to use'
         required: false
         type: string
-        default: 'v5.4.0'
+        default: 'v6.0a01'
       itk-python-package-tag:
         # See https://github.com/InsightSoftwareConsortium/ITKPythonPackage
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
-        # v5.4.0 + fixes
-        default: 'ca1a7e5809dd9dbc1ac3486ff601b5eb1b58184b'
+        # v6.0a01
+        default: 'v6.0a01'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
@@ -35,7 +35,7 @@ on:
         description: 'JSON-formatted array of Python 3.x minor version wheel targets'
         required: false
         type: string
-        default: '["8","9","10","11"]'
+        default: '["9","10","11"]'
       manylinux-platforms:
         description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
         required: false
