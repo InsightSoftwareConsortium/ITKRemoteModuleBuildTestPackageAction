@@ -55,10 +55,6 @@ on:
       pypi_password:
         required: false  # Packages will not be uploaded to PyPI if not set
 
-concurrency:
-  group: '${{ github.workflow }}@${{ github.event.pull_request.head.sha || github.head_ref || github.ref }}'
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
 
   build-linux-py:
