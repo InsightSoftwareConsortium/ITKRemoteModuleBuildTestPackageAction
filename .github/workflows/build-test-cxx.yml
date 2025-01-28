@@ -36,7 +36,7 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        os: [ubuntu-22.04, windows-2022, macos-13, macos-14]
+        os: [ubuntu-22.04, windows-2022, macos-13, macos-14, macos-15]
         include:
           - os: ubuntu-22.04
             c-compiler: "gcc"
