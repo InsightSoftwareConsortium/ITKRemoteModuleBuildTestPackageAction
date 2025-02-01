@@ -36,9 +36,9 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        os: [ubuntu-22.04, windows-2022, macos-13, macos-15]
+        os: [ubuntu-24.04, windows-2022, macos-13, macos-15]
         include:
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             c-compiler: "gcc"
             cxx-compiler: "g++"
             cmake-build-type: "MinSizeRel"
@@ -56,16 +56,16 @@ jobs:
             cmake-build-type: "MinSizeRel"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
 
     - name: Free Disk Space (Ubuntu)
-      if: matrix.os == 'ubuntu-22.04'
+      if: matrix.os == 'ubuntu-24.04'
       uses: jlumbroso/free-disk-space@v1.3.1
       with:
         large-packages: false
 
     - name: Set up Python 3.11
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v5.4.0
       with:
         python-version: "3.11"
 
