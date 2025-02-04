@@ -87,12 +87,12 @@ on: [push,pull_request]
 
 jobs:
   cxx-build-workflow:
-    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@d4a5ce4f219b66b78269a15392e15c95f90e7e00
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@bba02e2438336fc309d56a4ad8e588680e2c7f12
     with:
       itk-cmake-options: '-DITK_BUILD_DEFAULT_MODULES:BOOL=OFF -DITKGroup_Core:BOOL=ON'
 
   python-build-workflow:
-    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@d4a5ce4f219b66b78269a15392e15c95f90e7e00
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@bba02e2438336fc309d56a4ad8e588680e2c7f12
     secrets:
       pypi_password: ${{ secrets.pypi_password }}
 ```
@@ -117,7 +117,7 @@ The top-level jobs used to organize the run. Reusable workflows may provide mult
 
 ```yaml
   cxx-build-workflow:
-    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@d4a5ce4f219b66b78269a15392e15c95f90e7e00
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@bba02e2438336fc309d56a4ad8e588680e2c7f12
 ```
 Tells GHA to fetch and run the `build-test-cxx.yml` workflow.
 A commit hash or tagged version may be provided.
@@ -132,7 +132,7 @@ certain modules are built before the external module itself is subsequently buil
 
 ```yaml
   python-build-workflow:
-    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@d4a5ce4f219b66b78269a15392e15c95f90e7e00
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@bba02e2438336fc309d56a4ad8e588680e2c7f12
 ```
 Tells GHA to fetch and run the `build-test-package-python.yml` workflow.
 A commit hash or tagged version may be provided.
@@ -348,12 +348,11 @@ The `build-test-cxx` workflow supports building and running C++ tests on GitHub 
 Windows, Linux, and macOS. Image details are available [here](https://github.com/actions/runner-images).
 
 The `build-test-package-python.yml` workflow supports Python package generation for the following platforms and architectures:
-- Windows 10 x86_64 platforms
-- Windows 11 x86_64 platforms
-- macOS 10.9+ x86_64 platforms
-- macOS 11.0+ ARM64 platforms
-- Linux glibc 2.17+ (E.g. Ubuntu 18.04+) x86_64 platforms
-- Linux glibc 2.28+ (E.g. Ubuntu 20.04+) aarch64 (ARMv8) platforms
+- Windows 11 x86_64 platforms  (windows-2022)
+- macOS 11.0+ x86_64 platforms (macos-14)
+- macOS 13.0+ ARM64 platforms  (macos-15)
+- Linux glibc 2.17+ (E.g. Ubuntu 18.04+) x86_64 platforms (See: https://github.com/pypa/manylinux for details)
+- Linux glibc 2.28+ (E.g. Ubuntu 20.04+) aarch64 (ARMv8) platforms (See: https://github.com/pypa/manylinux for details)
 
 ### What should I do if my target platform/architecture does not appear on the list above?
 

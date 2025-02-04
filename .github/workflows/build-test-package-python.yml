@@ -13,14 +13,14 @@ on:
         description: 'Github release version tag for the ITKPythonBuilds build archive to use'
         required: false
         type: string
-        default: 'v5.4.0'
+        default: 'v6.0a01'
       itk-python-package-tag:
         # See https://github.com/InsightSoftwareConsortium/ITKPythonPackage
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
         # v5.4.0 + fixes
-        default: 'ca1a7e5809dd9dbc1ac3486ff601b5eb1b58184b'
+        default: 'remove_old_mac_config_content'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
@@ -35,12 +35,17 @@ on:
         description: 'JSON-formatted array of Python 3.x minor version wheel targets'
         required: false
         type: string
-        default: '["8","9","10","11"]'
+        default: '["9","10","11","12"]'
       manylinux-platforms:
         description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
         required: false
         type: string
-        default: '["_2_28-x64","2014-x64","_2_28-aarch64"]'
+        # Select configurations from https://github.com/pypa/manylinux
+        # "_2_28-x86_64"  -- most commonly used platform for developers (largest use case)
+        # "_2_28-aarch64" -- developers with aarch64 likely use quite modern os
+        # "2014-x86_64"   -- fallback packages for deployments to older OS's (i.e. computational cluster environments)
+        #                    2014-x86_64 Wheels are built on CentOS 7 which will reach End of Life (EOL) on June 30th, 2024.
+        default: '["_2_28-x86_64","_2_28-aarch64","2014-x86_64"]'
       macosx-deployment-target:
         description: 'A string to provide as MACOSX_DEPLOYMENT_TARGET, e.g. "10.15". If left empty (default), the per-architecture default will be used.'
         required: false
@@ -58,7 +63,7 @@ on:
 jobs:
 
   build-linux-py:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       max-parallel: 2
       matrix:
@@ -66,7 +71,7 @@ jobs:
         manylinux-platform: ${{ fromJSON(inputs.manylinux-platforms) }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
 
     - name: Free Disk Space (Ubuntu)
       uses: jlumbroso/free-disk-space@v1.3.1
@@ -105,7 +110,7 @@ jobs:
         ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS
 
     - name: Set up Python 3.11 for Validation
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v5.4.0
       with:
         python-version: "3.11"
 
@@ -133,14 +138,14 @@ jobs:
         path: dist/*.whl
 
   build-macos-py:
-    runs-on: macos-12
+    runs-on: macos-15
     strategy:
       max-parallel: 2
       matrix:
         python3-minor-version: ${{ fromJSON(inputs.python3-minor-versions) }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
 
     - name: 'Specific XCode version'
       run: |
@@ -178,7 +183,7 @@ jobs:
         ./macpython-download-cache-and-build-module-wheels.sh $CMAKE_OPTIONS "3.${{ matrix.python3-minor-version }}"
 
     - name: Set up Python 3.11 for Validation
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v5.4.0
       with:
         python-version: "3.11"
 
@@ -206,14 +211,14 @@ jobs:
         path: dist/*.whl
 
   build-macos-arm-py:
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       max-parallel: 2
       matrix:
         python3-minor-version: ${{ fromJSON(inputs.python3-minor-versions) }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
 
     - name: 'Specific XCode version'
       run: |
@@ -253,7 +258,7 @@ jobs:
         ./macpython-download-cache-and-build-module-wheels.sh $CMAKE_OPTIONS "3.${{ matrix.python3-minor-version }}"
 
     - name: Set up Python 3.11 for Validation
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v5.4.0
       with:
         python-version: "3.11"
 
@@ -293,7 +298,7 @@ jobs:
     - name: Get specific version of CMake, Ninja
       uses: lukka/get-cmake@v3.29.0
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
       with:
         path: "im"
 
@@ -338,7 +343,7 @@ jobs:
         cp 'dist\*.whl' '${{ github.workspace }}\dist'
 
     - name: Set up Python 3.11 for Validation
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v5.4.0
       with:
         python-version: "3.11"
 
@@ -363,12 +368,12 @@ jobs:
     if: inputs.test-notebooks
     needs:
       - build-linux-py
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.4.0
         with:
           python-version: "3.${{ fromJSON(inputs.python3-minor-versions)[0] }}"
 
@@ -411,7 +416,7 @@ jobs:
       - build-macos-py
       - build-macos-arm-py
       - build-windows-python-packages
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Download Python Packages
