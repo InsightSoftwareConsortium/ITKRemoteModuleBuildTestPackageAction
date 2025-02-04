@@ -13,14 +13,14 @@ on:
         description: 'Github release version tag for the ITKPythonBuilds build archive to use'
         required: false
         type: string
-        default: 'v5.4.0'
+        default: 'v6.0a01'
       itk-python-package-tag:
         # See https://github.com/InsightSoftwareConsortium/ITKPythonPackage
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
         # v5.4.0 + fixes
-        default: 'ca1a7e5809dd9dbc1ac3486ff601b5eb1b58184b'
+        default: 'remove_old_mac_config_content'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
@@ -41,11 +41,11 @@ on:
         required: false
         type: string
         # Select configurations from https://github.com/pypa/manylinux
-        # "_2_34-x86_64"  -- most commonly used platform for developers (largest use case)
-        # "_2_34-aarch64" -- developers with aarch64 likely use quite modern os
+        # "_2_28-x86_64"  -- most commonly used platform for developers (largest use case)
+        # "_2_28-aarch64" -- developers with aarch64 likely use quite modern os
         # "2014-x86_64"   -- fallback packages for deployments to older OS's (i.e. computational cluster environments)
         #                    2014-x86_64 Wheels are built on CentOS 7 which will reach End of Life (EOL) on June 30th, 2024.
-        default: '["_2_34-x86_64","_2_34-aarch64","2014-x86_64"]'
+        default: '["_2_28-x86_64","_2_28-aarch64","2014-x86_64"]'
       macosx-deployment-target:
         description: 'A string to provide as MACOSX_DEPLOYMENT_TARGET, e.g. "10.15". If left empty (default), the per-architecture default will be used.'
         required: false
