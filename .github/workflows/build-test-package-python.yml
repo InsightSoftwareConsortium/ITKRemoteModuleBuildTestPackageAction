@@ -39,7 +39,7 @@ on:
         description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
         required: false
         type: string
-        default: '["_2_28-x64","2014-x64","_2_28-aarch64"]'
+        default: '["_2_28-x64","2014-x64"]'
       macosx-deployment-target:
         description: 'A string to provide as MACOSX_DEPLOYMENT_TARGET, e.g. "10.15". If left empty (default), the per-architecture default will be used.'
         required: false
@@ -129,6 +129,80 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: LinuxWheel3${{ matrix.python3-minor-version }}${{ matrix.manylinux-platform }}
+        path: dist/*.whl
+
+  build-linux-arm-py:
+    runs-on: ubuntu-22.04-arm
+    strategy:
+      max-parallel: 2
+      matrix:
+        python3-minor-version: ${{ fromJSON(inputs.python3-minor-versions) }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@v1.3.1
+      with:
+        large-packages: false
+
+    - name: 'Fetch build script'
+      run: |
+        IPP_DOWNLOAD_GIT_TAG=${{ inputs.itk-python-package-tag }}
+        IPP_DOWNLOAD_ORG=${{ inputs.itk-python-package-org }}
+        curl -L https://raw.githubusercontent.com/${IPP_DOWNLOAD_ORG:=InsightSoftwareConsortium}/ITKPythonPackage/${IPP_DOWNLOAD_GIT_TAG:=master}/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
+        chmod u+x dockcross-manylinux-download-cache-and-build-module-wheels.sh
+
+    - name: 'Build 🐍 Python 📦 package'
+      shell: bash
+      run: |
+        rm -rf dist
+
+        export ITK_PACKAGE_VERSION=${{ inputs.itk-wheel-tag }}
+        export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
+        export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
+        export ITK_MODULE_PREQ=${{ inputs.itk-module-deps }}
+        if [ -z ${{ inputs.cmake-options }} ]; then
+          CMAKE_OPTIONS=""
+        else
+          CMAKE_OPTIONS="--cmake_options ${{ inputs.cmake-options }}"
+        fi
+
+        MANYLINUX_PLATFORM="_2_28-aarch64"
+        echo "Manylinux platform ${MANYLINUX_PLATFORM}"
+        rm -rf ITKPythonPackage
+        export MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
+        export TARGET_ARCH=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)`
+        echo "Building for manylinux specialization ${MANYLINUX_VERSION} and target architecture ${TARGET_ARCH}"
+
+        ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS
+
+    - name: Set up Python 3.11 for Validation
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Validate build output
+      shell: bash
+      run: |
+        python -m pip install twine
+        ls dist/
+
+        MANYLINUX_PLATFORM="_2_28-aarch64"
+        MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
+        TARGET_ARCH_NAME=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)`
+        if [[ ${TARGET_ARCH_NAME} == "x64" ]]; then
+          TARGET_ARCH_NAME="x86_64" # Match auditwheel naming convention
+        fi
+        WHEEL_PATTERN="dist/itk_*cp3${{ matrix.python3-minor-version }}*manylinux${MANYLINUX_VERSION}*${TARGET_ARCH_NAME}.whl"
+
+        echo "Searching for wheels matching pattern ${WHEEL_PATTERN}"
+        python -m twine check ${WHEEL_PATTERN}
+
+    - name: Publish Python package as GitHub Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: LinuxWheel3${{ matrix.python3-minor-version }}_2_28-aarch64
         path: dist/*.whl
 
   build-macos-arm-py:
@@ -334,6 +408,7 @@ jobs:
   publish-python-packages-to-pypi:
     needs:
       - build-linux-py
+      - build-linux-arm-py
       - build-macos-arm-py
       - build-windows-python-packages
     runs-on: ubuntu-22.04
