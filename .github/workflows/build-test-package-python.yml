@@ -35,6 +35,8 @@ on:
         description: 'JSON-formatted array of Python 3.x minor version wheel targets'
         required: false
         type: string
+        # Do not build explicit python 3.12 packages. The 3.11 packages support >= 3.11.
+        # Python 3.12 and 3.13 aim to maintain ABI compatibility with Python 3.11 through the Stable ABI.
         default: '["9","10","11"]'
       manylinux-platforms:
         description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
