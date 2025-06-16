@@ -32,7 +32,7 @@ The following are also helpful, but not strictly required:
 - A computer running the operating system for which your changes are targeted,
   i.e. Windows, Ubuntu (Linux), or macOS. This will allow you to test changes locally
   before pushing to GitHub.
-- A Python interpreter of 3.8 or greater for testing wheels locally.
+- A Python interpreter of 3.9 or greater for testing wheels locally.
 
 Before getting started it's helpful to have a working understanding of the following:
 - ITK external modules
