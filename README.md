@@ -1,6 +1,6 @@
 # ITKRemoteModuleBuildTestPackageAction
 
-This project provides reusable GitHub Actions workflows to 
+This project provides reusable GitHub Actions workflows to
 build, test, and package ITK external modules.
 
 The Insight Toolkit (ITK) is an open-source, cross-platform system
@@ -25,7 +25,7 @@ or at the [ITK GitHub homepage](https://github.com/insightSoftwareConsortium/ITK
 ## Motivation
 
 The ITK ecosystem is driven by community contributions in the form of external
-modules that provide expanded functionality. Chapter 9 of the 
+modules that provide expanded functionality. Chapter 9 of the
 [ITK Software Guide](https://itk.org/ItkSoftwareGuide.pdf),
 "How To Create A Module", details the process to extend ITK.
 
