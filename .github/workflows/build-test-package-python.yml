@@ -13,14 +13,14 @@ on:
         description: 'Github release version tag for the ITKPythonBuilds build archive to use'
         required: false
         type: string
-        default: 'v5.4.4'
+        default: 'v6.0b01'
       itk-python-package-tag:
         # See https://github.com/InsightSoftwareConsortium/ITKPythonPackage
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
-        # v5.4.4
-        default: 'v5.4.4'
+        # v6.0b01
+        default: 'v6.0b01'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
@@ -42,7 +42,7 @@ on:
         description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
         required: false
         type: string
-        default: '["_2_28-x64","2014-x64"]'
+        default: '["_2_28-x64"]'
       macosx-deployment-target:
         description: 'A string to provide as MACOSX_DEPLOYMENT_TARGET, e.g. "10.15". If left empty (default), the per-architecture default will be used.'
         required: false
