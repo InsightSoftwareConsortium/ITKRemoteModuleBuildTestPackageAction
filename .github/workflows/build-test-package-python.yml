@@ -245,7 +245,7 @@ jobs:
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
         export ITK_MODULE_PREQ=${{ inputs.itk-module-deps }}
         if [ -z ${{ inputs.macosx-deployment-target }} ]; then
-          export MACOSX_DEPLOYMENT_TARGET=11.0
+          export MACOSX_DEPLOYMENT_TARGET=15.0
         else
           export MACOSX_DEPLOYMENT_TARGET=${{ inputs.macosx-deployment-target }}
         fi
