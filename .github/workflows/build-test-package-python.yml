@@ -396,7 +396,7 @@ jobs:
       - name: Install Python Package Artifact
         run: |
           ls .
-          wheel_name_full=`(find . -name "*cp3${{ fromJSON(inputs.python3-minor-versions)[0] }}*-manylinux_2_28_x86_64.whl")`
+          wheel_name_full=`(find . -name "*cp3${{ fromJSON(inputs.python3-minor-versions)[0] }}*manylinux_2_28_x86_64.whl")`
           echo "wheel_name_full ${wheel_name_full}"
           # extract wheel name which may be an abbreviation of the module name
           # ex. ./itk_splitcomponents-cp310..._64.whl -> itk-splitcomponents
