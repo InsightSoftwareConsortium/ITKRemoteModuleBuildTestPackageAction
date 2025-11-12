@@ -112,9 +112,9 @@ jobs:
         export MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
         export TARGET_ARCH=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)`
         echo "Building for manylinux specialization ${MANYLINUX_VERSION} and target architecture ${TARGET_ARCH}"
-        echo "./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS"
+        echo "ITK_PACKAGE_VERSION=${ITK_PACKAGE_VERSION} ITKPYTHONPACKAGE_TAG=${ITKPYTHONPACKAGE_TAG} ITKPYTHONPACKAGE_ORG=${ITKPYTHONPACKAGE_ORG} ITK_MODULE_PREQ=${ITK_MODULE_PREQ} IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG} IPP_DOWNLOAD_ORG=${IPP_DOWNLOAD_ORG} ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS"
 
-        ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS
+        ITK_PACKAGE_VERSION=${ITK_PACKAGE_VERSION} ITKPYTHONPACKAGE_TAG=${ITKPYTHONPACKAGE_TAG} ITKPYTHONPACKAGE_ORG=${ITKPYTHONPACKAGE_ORG} ITK_MODULE_PREQ=${ITK_MODULE_PREQ} IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG} IPP_DOWNLOAD_ORG=${IPP_DOWNLOAD_ORG} ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS
 
     - name: Set up Python 3.11 for Validation
       uses: actions/setup-python@v5
@@ -206,9 +206,9 @@ jobs:
         export MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
         export TARGET_ARCH=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)`
         echo "Building for manylinux specialization ${MANYLINUX_VERSION} and target architecture ${TARGET_ARCH}"
-        echo "./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS"
+        echo "ITK_PACKAGE_VERSION=${ITK_PACKAGE_VERSION} ITKPYTHONPACKAGE_TAG=${ITKPYTHONPACKAGE_TAG} ITKPYTHONPACKAGE_ORG=${ITKPYTHONPACKAGE_ORG} ITK_MODULE_PREQ=${ITK_MODULE_PREQ} IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG} IPP_DOWNLOAD_ORG=${IPP_DOWNLOAD_ORG} ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS"
 
-        ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS
+        ITK_PACKAGE_VERSION=${ITK_PACKAGE_VERSION} ITKPYTHONPACKAGE_TAG=${ITKPYTHONPACKAGE_TAG} ITKPYTHONPACKAGE_ORG=${ITKPYTHONPACKAGE_ORG} ITK_MODULE_PREQ=${ITK_MODULE_PREQ} IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG} IPP_DOWNLOAD_ORG=${IPP_DOWNLOAD_ORG} ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS
 
     - name: Set up Python 3.11 for Validation
       uses: actions/setup-python@v5
