@@ -123,9 +123,14 @@ jobs:
     - name: Validate build output
       shell: bash
       run: |
-        python -m pip install twine
-        ls dist/
-
+        if [ -d dist ]; then
+          ls dist/
+        else
+          echo "Missing required directory 'dist' at $(pwd)"
+          exit -1
+        fi
+        echo "All wheels"
+        ls -al dist/*.whl
         MANYLINUX_PLATFORM=${{ matrix.manylinux-platform }}
         MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
         TARGET_ARCH_NAME=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)`
@@ -133,9 +138,14 @@ jobs:
           TARGET_ARCH_NAME="x86_64" # Match auditwheel naming convention
         fi
         WHEEL_PATTERN="dist/itk_*cp3${{ matrix.python3-minor-version }}*manylinux${MANYLINUX_VERSION}*${TARGET_ARCH_NAME}.whl"
-
         echo "Searching for wheels matching pattern ${WHEEL_PATTERN}"
-        python -m twine check ${WHEEL_PATTERN}
+        if [ -f "${WHEEL_PATTERN}" ]; then
+          python -m pip install twine
+          python -m twine check ${WHEEL_PATTERN}
+        else
+          echo "Wheel pattern not found"
+          exit -1
+        fi
 
     - name: Publish Python package as GitHub Artifact
       uses: actions/upload-artifact@v4
@@ -206,8 +216,14 @@ jobs:
     - name: Validate build output
       shell: bash
       run: |
-        python -m pip install twine
-        ls dist/
+        if [ -d dist ]; then
+          ls dist/
+        else
+          echo "Missing required directory 'dist' at $(pwd)"
+          exit -1
+        fi
+        echo "All wheels"
+        ls -al dist/*.whl
 
         MANYLINUX_PLATFORM="_2_28-aarch64"
         MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
@@ -218,6 +234,7 @@ jobs:
         WHEEL_PATTERN="dist/itk_*cp3${{ matrix.python3-minor-version }}*manylinux${MANYLINUX_VERSION}*${TARGET_ARCH_NAME}.whl"
 
         echo "Searching for wheels matching pattern ${WHEEL_PATTERN}"
+        python -m pip install twine
         python -m twine check ${WHEEL_PATTERN}
 
     - name: Publish Python package as GitHub Artifact
@@ -283,8 +300,14 @@ jobs:
       if: matrix.python3-minor-version != '8'
       shell: bash
       run: |
-        python -m pip install twine
-        ls dist/
+        if [ -d dist ]; then
+          ls dist/
+        else
+          echo "Missing required directory 'dist' at $(pwd)"
+          exit -1
+        fi
+        echo "All wheels"
+        ls -al dist/*.whl
 
         WHEEL_PATTERN="dist/itk_*macosx*.whl"
         EXPECTED_WHEEL_COUNT=1
@@ -295,6 +318,7 @@ jobs:
           exit 1
         fi
 
+        python -m pip install twine
         python -m twine check ${WHEEL_PATTERN}
 
     - name: Publish Python package as GitHub Artifact
@@ -367,12 +391,12 @@ jobs:
     - name: Validate build output
       shell: pwsh
       run: |
-        python -m pip install twine
         ls dist/
 
         $WHEEL_PATTERN = "dist/itk_*cp3${{ matrix.python3-minor-version }}*win*.whl"
         echo "Searching for wheels matching pattern ${WHEEL_PATTERN}"
 
+        python -m pip install twine
         python -m twine check ${WHEEL_PATTERN}
 
     - name: Publish Python package as GitHub Artifact
