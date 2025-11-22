@@ -71,9 +71,18 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Free Disk Space (Ubuntu)
-      uses: jlumbroso/free-disk-space@v1.3.1
+      uses: BRAINSia/free-disk-space@v2
       with:
-        large-packages: false
+        removalmode: "rmz"
+
+        swap-storage:   "true"
+        haskell:        "true"
+        dotnet:         "true"
+        docker-images:  "false" # Takes too long
+        tool-cache:     "true"
+        android:        "false" # Takes too long
+        large-packages: "false"  # Takes too long to remove apt-get packages
+        mandb:          "true"  # Speeds up future apt-get installs (disables man page generation), this CI does not use apt-get
 
     - name: 'Fetch build script'
       run: |
@@ -105,8 +114,9 @@ jobs:
         export MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
         export TARGET_ARCH=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)`
         echo "Building for manylinux specialization ${MANYLINUX_VERSION} and target architecture ${TARGET_ARCH}"
+        echo "ITK_PACKAGE_VERSION=${ITK_PACKAGE_VERSION} ITKPYTHONPACKAGE_TAG=${ITKPYTHONPACKAGE_TAG} ITKPYTHONPACKAGE_ORG=${ITKPYTHONPACKAGE_ORG} ITK_MODULE_PREQ=${ITK_MODULE_PREQ} IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG} IPP_DOWNLOAD_ORG=${IPP_DOWNLOAD_ORG} ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS"
 
-        ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS
+        ITK_PACKAGE_VERSION=${ITK_PACKAGE_VERSION} ITKPYTHONPACKAGE_TAG=${ITKPYTHONPACKAGE_TAG} ITKPYTHONPACKAGE_ORG=${ITKPYTHONPACKAGE_ORG} ITK_MODULE_PREQ=${ITK_MODULE_PREQ} IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG} IPP_DOWNLOAD_ORG=${IPP_DOWNLOAD_ORG} ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS
 
     - name: Set up Python 3.11 for Validation
       uses: actions/setup-python@v5
@@ -116,9 +126,14 @@ jobs:
     - name: Validate build output
       shell: bash
       run: |
-        python -m pip install twine
-        ls dist/
-
+        if [ -d dist ]; then
+          ls dist/
+        else
+          echo "Missing required directory 'dist' at $(pwd)"
+          exit -1
+        fi
+        echo "All wheels"
+        ls -al dist/*.whl
         MANYLINUX_PLATFORM=${{ matrix.manylinux-platform }}
         MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
         TARGET_ARCH_NAME=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)`
@@ -126,9 +141,14 @@ jobs:
           TARGET_ARCH_NAME="x86_64" # Match auditwheel naming convention
         fi
         WHEEL_PATTERN="dist/itk_*cp3${{ matrix.python3-minor-version }}*manylinux${MANYLINUX_VERSION}*${TARGET_ARCH_NAME}.whl"
-
         echo "Searching for wheels matching pattern ${WHEEL_PATTERN}"
-        python -m twine check ${WHEEL_PATTERN}
+        if [ -f "${WHEEL_PATTERN}" ]; then
+          python -m pip install twine
+          python -m twine check ${WHEEL_PATTERN}
+        else
+          echo "Wheel pattern not found"
+          exit -1
+        fi
 
     - name: Publish Python package as GitHub Artifact
       uses: actions/upload-artifact@v4
@@ -147,9 +167,18 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Free Disk Space (Ubuntu)
-      uses: jlumbroso/free-disk-space@v1.3.1
+      uses: BRAINSia/free-disk-space@v2
       with:
-        large-packages: false
+        removalmode: "rmz"
+
+        swap-storage:   "true"
+        haskell:        "true"
+        dotnet:         "true"
+        docker-images:  "false" # Takes too long
+        tool-cache:     "true"
+        android:        "false" # Takes too long
+        large-packages: "false"  # Takes too long to remove apt-get packages
+        mandb:          "true"  # Speeds up future apt-get installs (disables man page generation), this CI does not use apt-get
 
     - name: 'Fetch build script'
       run: |
@@ -181,8 +210,9 @@ jobs:
         export MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
         export TARGET_ARCH=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)`
         echo "Building for manylinux specialization ${MANYLINUX_VERSION} and target architecture ${TARGET_ARCH}"
+        echo "ITK_PACKAGE_VERSION=${ITK_PACKAGE_VERSION} ITKPYTHONPACKAGE_TAG=${ITKPYTHONPACKAGE_TAG} ITKPYTHONPACKAGE_ORG=${ITKPYTHONPACKAGE_ORG} ITK_MODULE_PREQ=${ITK_MODULE_PREQ} IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG} IPP_DOWNLOAD_ORG=${IPP_DOWNLOAD_ORG} ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS"
 
-        ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS
+        ITK_PACKAGE_VERSION=${ITK_PACKAGE_VERSION} ITKPYTHONPACKAGE_TAG=${ITKPYTHONPACKAGE_TAG} ITKPYTHONPACKAGE_ORG=${ITKPYTHONPACKAGE_ORG} ITK_MODULE_PREQ=${ITK_MODULE_PREQ} IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG} IPP_DOWNLOAD_ORG=${IPP_DOWNLOAD_ORG} ./dockcross-manylinux-download-cache-and-build-module-wheels.sh cp3${{ matrix.python3-minor-version }} $CMAKE_OPTIONS
 
     - name: Set up Python 3.11 for Validation
       uses: actions/setup-python@v5
@@ -192,8 +222,14 @@ jobs:
     - name: Validate build output
       shell: bash
       run: |
-        python -m pip install twine
-        ls dist/
+        if [ -d dist ]; then
+          ls dist/
+        else
+          echo "Missing required directory 'dist' at $(pwd)"
+          exit -1
+        fi
+        echo "All wheels"
+        ls -al dist/*.whl
 
         MANYLINUX_PLATFORM="_2_28-aarch64"
         MANYLINUX_VERSION=`(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)`
@@ -204,6 +240,7 @@ jobs:
         WHEEL_PATTERN="dist/itk_*cp3${{ matrix.python3-minor-version }}*manylinux${MANYLINUX_VERSION}*${TARGET_ARCH_NAME}.whl"
 
         echo "Searching for wheels matching pattern ${WHEEL_PATTERN}"
+        python -m pip install twine
         python -m twine check ${WHEEL_PATTERN}
 
     - name: Publish Python package as GitHub Artifact
@@ -271,8 +308,14 @@ jobs:
       if: matrix.python3-minor-version != '8'
       shell: bash
       run: |
-        python -m pip install twine
-        ls dist/
+        if [ -d dist ]; then
+          ls dist/
+        else
+          echo "Missing required directory 'dist' at $(pwd)"
+          exit -1
+        fi
+        echo "All wheels"
+        ls -al dist/*.whl
 
         WHEEL_PATTERN="dist/itk_*macosx*.whl"
         EXPECTED_WHEEL_COUNT=1
@@ -283,6 +326,7 @@ jobs:
           exit 1
         fi
 
+        python -m pip install twine
         python -m twine check ${WHEEL_PATTERN}
 
     - name: Publish Python package as GitHub Artifact
@@ -355,12 +399,12 @@ jobs:
     - name: Validate build output
       shell: pwsh
       run: |
-        python -m pip install twine
         ls dist/
 
         $WHEEL_PATTERN = "dist/itk_*cp3${{ matrix.python3-minor-version }}*win*.whl"
         echo "Searching for wheels matching pattern ${WHEEL_PATTERN}"
 
+        python -m pip install twine
         python -m twine check ${WHEEL_PATTERN}
 
     - name: Publish Python package as GitHub Artifact
