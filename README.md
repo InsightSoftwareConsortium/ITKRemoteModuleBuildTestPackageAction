@@ -161,7 +161,7 @@ to direct workflow execution.
 
 ```yaml
   with:
-    itk-git-tag: 'v5.3.0'
+    itk-git-tag: 'v5.4.5'
 ```
 
 - `itk-cmake-options`: CMake configuration parameters for building ITK as a prerequisite.
@@ -242,7 +242,7 @@ to direct workflow execution.
 
 ```yaml
   with:
-    itk-wheel-tag: 'v5.3.0'
+    itk-wheel-tag: 'v5.4.5'
 ```
 
 - `itk-python-package-tag`: The git tag or commit hash for ITKPythonPackage build scripts to use.
@@ -254,7 +254,7 @@ to direct workflow execution.
 
 ```yaml
   with:
-    itk-python-package-tag: 'v5.3.0'
+    itk-python-package-tag: 'v5.4.5'
 ```
 
 - `itk-python-package-org`: The GitHub organization to reference for fetching ITKPythonPackage build scripts.
