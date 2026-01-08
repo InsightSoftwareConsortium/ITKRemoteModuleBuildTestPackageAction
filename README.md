@@ -292,7 +292,7 @@ to direct workflow execution.
 
 ```yaml
   with:
-    python3-minor-versions: '["7","8","9","10","11"]` # Builds for Python 3.7 through 3.11
+    python3-minor-versions: '["9","10","11"]` # Builds for Python 3.9 through 3.11
 ```
 
 - `manylinux-platforms`: Array of [manylinux](https://github.com/pypa/manylinux)
