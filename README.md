@@ -342,7 +342,7 @@ on GitHub.
 
 ## Frequently Asked Questions
 
-### What target platforms and architectures are supported?
+### What target platforms and architectures are supported (as of March 2023)?
 
 The `build-test-cxx` workflow supports building and running C++ tests on GitHub Actions runner images for
 Windows, Linux, and macOS. Image details are available [here](https://github.com/actions/runner-images).
