@@ -342,7 +342,7 @@ on GitHub.
 
 ## Frequently Asked Questions
 
-### What target platforms and architectures are supported (as of March 2023)?
+### What target platforms and architectures are supported (as of ITK 5.4.5)?
 
 The `build-test-cxx` workflow supports building and running C++ tests on GitHub Actions runner images for
 Windows, Linux, and macOS. Image details are available [here](https://github.com/actions/runner-images).
@@ -354,6 +354,20 @@ The `build-test-package-python.yml` workflow supports Python package generation 
 - macOS 11.0+ ARM64 platforms
 - Linux glibc 2.17+ (E.g. Ubuntu 18.04+) x86_64 platforms
 - Linux glibc 2.28+ (E.g. Ubuntu 20.04+) aarch64 (ARMv8) platforms
+
+```txt
+ITK 5.4.5
+  C++:    amd64 - mac, linux, windows
+            arm - mac
+  Python: amd64 - linux 2.17+, glibc, 2.28+, windows,
+            arm - mac-14, linux glibc 2.28+
+
+ITK 6:
+  C++:    amd64 - mac, linux, windows
+            arm - mac
+  Python: amd64 - linux glibc 2.28+, windows,
+            arm - mac-15, linux glibc 2.28+
+```
 
 ### What should I do if my target platform/architecture does not appear on the list above?
 
