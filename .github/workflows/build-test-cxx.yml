@@ -23,7 +23,8 @@ on:
         description: 'Git version tag or commit hash for the base ITK build'
         required: false
         type: string
-        default: 'v6.0b01'
+        # release branch 2026-03-10
+        default: 'c6e1c1be6a86236cbb812bd71eec5a4df9b1353c'
       itk-module-deps:
         description: 'Colon-delimited list of ITK remote module dependencies to build. Format as module_name@tag:...'
         # example: MeshToPolyData@3ad8f08:BSplineGradient@0.3.0
@@ -75,7 +76,7 @@ jobs:
         python -m pip install ninja
 
     - name: Get specific version of CMake, Ninja
-      uses: lukka/get-cmake@v3.29.0
+      uses: lukka/get-cmake@v4.2.3
 
     - name: 'Specific XCode version = 16.2'
       if: matrix.os == 'macos-15-intel' || matrix.os == 'macos-15'

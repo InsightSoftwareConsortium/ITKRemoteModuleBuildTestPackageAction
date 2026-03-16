@@ -13,14 +13,14 @@ on:
         description: 'Github release version tag for the ITKPythonBuilds build archive to use'
         required: false
         type: string
-        default: 'v6.0b01.post1'
+        default: 'v6.0b02'
       itk-python-package-tag:
         # See https://github.com/InsightSoftwareConsortium/ITKPythonPackage
         description: 'Git tag or commit hash for ITKPythonPackage build scripts to use'
         required: false
         type: string
-        # v6.0b01
-        default: 'v6.0b01.post1'
+        # v6.0b02
+        default: 'v6.0b02'
       itk-python-package-org:
         description: 'Github organization name for fetching ITKPythonPackage build scripts'
         required: false
@@ -37,7 +37,7 @@ on:
         type: string
         # Do not build explicit python 3.12 packages. The 3.11 packages support >= 3.11.
         # Python 3.12 and 3.13 aim to maintain ABI compatibility with Python 3.11 through the Stable ABI.
-        default: '["9","10","11"]'
+        default: '["10","11"]'
       manylinux-platforms:
         description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
         required: false
@@ -265,7 +265,7 @@ jobs:
         sudo xcode-select -s "/Applications/Xcode_16.2.app"
 
     - name: Get specific version of CMake, Ninja
-      uses: lukka/get-cmake@v3.29.0
+      uses: lukka/get-cmake@v4.2.3
 
     - name: 'Fetch build script'
       if: matrix.python3-minor-version != '8'
@@ -345,7 +345,7 @@ jobs:
 
     steps:
     - name: Get specific version of CMake, Ninja
-      uses: lukka/get-cmake@v3.29.0
+      uses: lukka/get-cmake@v4.2.3
 
     - uses: actions/checkout@v4
       with:
