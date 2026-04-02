@@ -86,32 +86,42 @@ jobs:
 
     - name: 'Pre-pull dockcross image'
       run: |
+        # Resolve the image tag dynamically from the ITKPythonPackage build scripts
+        # so it matches exactly what the build step will pull.
+        IPP_TAG=${{ inputs.itk-python-package-tag }}
+        IPP_TAG=${IPP_TAG:=main}
+        IPP_ORG=${{ inputs.itk-python-package-org }}
+        IPP_ORG=${IPP_ORG:=InsightSoftwareConsortium}
+
         MANYLINUX_PLATFORM=${{ matrix.manylinux-platform }}
-        MANYLINUX_VERSION=$(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)
-        TARGET_ARCH=$(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)
-        if [[ ${MANYLINUX_VERSION} == _2_28 && ${TARGET_ARCH} == x64 ]]; then
-          IMAGE_TAG="20240304-9e57d2b"
-        elif [[ ${MANYLINUX_VERSION} == 2014 ]]; then
-          IMAGE_TAG="20240304-9e57d2b"
-        else
-          echo "Unknown manylinux platform ${MANYLINUX_PLATFORM}, skipping pre-pull"
+        export MANYLINUX_VERSION=$(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)
+        export TARGET_ARCH=$(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)
+
+        VARS_URL="https://raw.githubusercontent.com/${IPP_ORG}/ITKPythonPackage/${IPP_TAG}/scripts/dockcross-manylinux-set-vars.sh"
+        echo "Fetching image tags from ${VARS_URL}"
+        curl -fsSL "${VARS_URL}" -o /tmp/set-vars.sh || { echo "Could not fetch set-vars.sh, skipping pre-pull"; exit 0; }
+        source /tmp/set-vars.sh
+
+        if [[ -z ${CONTAINER_SOURCE} ]]; then
+          echo "Could not determine container source, skipping pre-pull"
           exit 0
         fi
-        IMAGE="dockcross/manylinux${MANYLINUX_VERSION}-${TARGET_ARCH}:${IMAGE_TAG}"
+
+        # Build the GHCR mirror name
         GHCR_IMAGE="ghcr.io/insightsoftwareconsortium/dockcross-manylinux${MANYLINUX_VERSION}-${TARGET_ARCH}:${IMAGE_TAG}"
-        echo "Pre-pulling ${GHCR_IMAGE} (mirror of docker.io/${IMAGE})"
+        echo "Pre-pulling ${GHCR_IMAGE} (mirror of ${CONTAINER_SOURCE})"
         for attempt in 1 2 3; do
           if docker pull "${GHCR_IMAGE}" 2>/dev/null; then
-            docker tag "${GHCR_IMAGE}" "docker.io/${IMAGE}"
+            docker tag "${GHCR_IMAGE}" "${CONTAINER_SOURCE}"
             echo "Successfully pulled from GHCR mirror"
             exit 0
           fi
-          echo "GHCR pull attempt ${attempt} failed, trying Docker Hub..."
-          if docker pull "docker.io/${IMAGE}"; then
-            echo "Successfully pulled from Docker Hub"
+          echo "GHCR pull attempt ${attempt} failed, trying upstream ${CONTAINER_SOURCE}..."
+          if docker pull "${CONTAINER_SOURCE}"; then
+            echo "Successfully pulled from upstream"
             exit 0
           fi
-          echo "Docker Hub pull attempt ${attempt} failed, retrying in 15s..."
+          echo "Upstream pull attempt ${attempt} failed, retrying in 15s..."
           sleep 15
         done
         echo "WARNING: All pull attempts failed, build script will retry"
@@ -214,18 +224,35 @@ jobs:
 
     - name: 'Pre-pull manylinux aarch64 image'
       run: |
-        IMAGE_TAG="2024-03-25-9206bd9"
-        IMAGE="quay.io/pypa/manylinux_2_28_aarch64:${IMAGE_TAG}"
+        # Resolve the image tag dynamically from the ITKPythonPackage build scripts
+        IPP_TAG=${{ inputs.itk-python-package-tag }}
+        IPP_TAG=${IPP_TAG:=main}
+        IPP_ORG=${{ inputs.itk-python-package-org }}
+        IPP_ORG=${IPP_ORG:=InsightSoftwareConsortium}
+
+        export MANYLINUX_VERSION="_2_28"
+        export TARGET_ARCH="aarch64"
+
+        VARS_URL="https://raw.githubusercontent.com/${IPP_ORG}/ITKPythonPackage/${IPP_TAG}/scripts/dockcross-manylinux-set-vars.sh"
+        echo "Fetching image tags from ${VARS_URL}"
+        curl -fsSL "${VARS_URL}" -o /tmp/set-vars.sh || { echo "Could not fetch set-vars.sh, skipping pre-pull"; exit 0; }
+        source /tmp/set-vars.sh
+
+        if [[ -z ${CONTAINER_SOURCE} ]]; then
+          echo "Could not determine container source, skipping pre-pull"
+          exit 0
+        fi
+
         GHCR_IMAGE="ghcr.io/insightsoftwareconsortium/dockcross-manylinux_2_28-aarch64:${IMAGE_TAG}"
-        echo "Pre-pulling ${GHCR_IMAGE} (mirror of ${IMAGE})"
+        echo "Pre-pulling ${GHCR_IMAGE} (mirror of ${CONTAINER_SOURCE})"
         for attempt in 1 2 3; do
           if docker pull "${GHCR_IMAGE}" 2>/dev/null; then
-            docker tag "${GHCR_IMAGE}" "${IMAGE}"
+            docker tag "${GHCR_IMAGE}" "${CONTAINER_SOURCE}"
             echo "Successfully pulled from GHCR mirror"
             exit 0
           fi
           echo "GHCR pull attempt ${attempt} failed, trying upstream..."
-          if docker pull "${IMAGE}"; then
+          if docker pull "${CONTAINER_SOURCE}"; then
             echo "Successfully pulled from upstream"
             exit 0
           fi
