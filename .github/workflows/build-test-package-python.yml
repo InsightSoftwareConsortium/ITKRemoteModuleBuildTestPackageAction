@@ -84,6 +84,38 @@ jobs:
         large-packages: "false"  # Takes too long to remove apt-get packages
         mandb:          "true"  # Speeds up future apt-get installs (disables man page generation), this CI does not use apt-get
 
+    - name: 'Pre-pull dockcross image'
+      run: |
+        MANYLINUX_PLATFORM=${{ matrix.manylinux-platform }}
+        MANYLINUX_VERSION=$(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 1)
+        TARGET_ARCH=$(echo ${MANYLINUX_PLATFORM} | cut -d '-' -f 2)
+        if [[ ${MANYLINUX_VERSION} == _2_28 && ${TARGET_ARCH} == x64 ]]; then
+          IMAGE_TAG="20240304-9e57d2b"
+        elif [[ ${MANYLINUX_VERSION} == 2014 ]]; then
+          IMAGE_TAG="20240304-9e57d2b"
+        else
+          echo "Unknown manylinux platform ${MANYLINUX_PLATFORM}, skipping pre-pull"
+          exit 0
+        fi
+        IMAGE="dockcross/manylinux${MANYLINUX_VERSION}-${TARGET_ARCH}:${IMAGE_TAG}"
+        GHCR_IMAGE="ghcr.io/insightsoftwareconsortium/dockcross-manylinux${MANYLINUX_VERSION}-${TARGET_ARCH}:${IMAGE_TAG}"
+        echo "Pre-pulling ${GHCR_IMAGE} (mirror of docker.io/${IMAGE})"
+        for attempt in 1 2 3; do
+          if docker pull "${GHCR_IMAGE}" 2>/dev/null; then
+            docker tag "${GHCR_IMAGE}" "docker.io/${IMAGE}"
+            echo "Successfully pulled from GHCR mirror"
+            exit 0
+          fi
+          echo "GHCR pull attempt ${attempt} failed, trying Docker Hub..."
+          if docker pull "docker.io/${IMAGE}"; then
+            echo "Successfully pulled from Docker Hub"
+            exit 0
+          fi
+          echo "Docker Hub pull attempt ${attempt} failed, retrying in 15s..."
+          sleep 15
+        done
+        echo "WARNING: All pull attempts failed, build script will retry"
+
     - name: 'Fetch build script'
       run: |
         IPP_DOWNLOAD_GIT_TAG=${{ inputs.itk-python-package-tag }}
@@ -179,6 +211,28 @@ jobs:
         android:        "false" # Takes too long
         large-packages: "false"  # Takes too long to remove apt-get packages
         mandb:          "true"  # Speeds up future apt-get installs (disables man page generation), this CI does not use apt-get
+
+    - name: 'Pre-pull manylinux aarch64 image'
+      run: |
+        IMAGE_TAG="2024-03-25-9206bd9"
+        IMAGE="quay.io/pypa/manylinux_2_28_aarch64:${IMAGE_TAG}"
+        GHCR_IMAGE="ghcr.io/insightsoftwareconsortium/dockcross-manylinux_2_28-aarch64:${IMAGE_TAG}"
+        echo "Pre-pulling ${GHCR_IMAGE} (mirror of ${IMAGE})"
+        for attempt in 1 2 3; do
+          if docker pull "${GHCR_IMAGE}" 2>/dev/null; then
+            docker tag "${GHCR_IMAGE}" "${IMAGE}"
+            echo "Successfully pulled from GHCR mirror"
+            exit 0
+          fi
+          echo "GHCR pull attempt ${attempt} failed, trying upstream..."
+          if docker pull "${IMAGE}"; then
+            echo "Successfully pulled from upstream"
+            exit 0
+          fi
+          echo "Upstream pull attempt ${attempt} failed, retrying in 15s..."
+          sleep 15
+        done
+        echo "WARNING: All pull attempts failed, build script will retry"
 
     - name: 'Fetch build script'
       run: |

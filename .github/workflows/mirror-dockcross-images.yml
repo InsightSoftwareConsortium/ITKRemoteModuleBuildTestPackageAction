@@ -1,0 +1,46 @@
+name: Mirror dockcross images to GHCR
+
+on:
+  schedule:
+    # Run weekly on Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+env:
+  GHCR_ORG: ghcr.io/insightsoftwareconsortium
+
+jobs:
+  mirror:
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - source: docker.io/dockcross/manylinux_2_28-x64:20240304-9e57d2b
+            target: dockcross-manylinux_2_28-x64:20240304-9e57d2b
+          - source: docker.io/dockcross/manylinux2014-x64:20240304-9e57d2b
+            target: dockcross-manylinux2014-x64:20240304-9e57d2b
+          - source: quay.io/pypa/manylinux_2_28_aarch64:2024-03-25-9206bd9
+            target: dockcross-manylinux_2_28-aarch64:2024-03-25-9206bd9
+
+    steps:
+    - name: Log in to GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Pull source image
+      run: |
+        for attempt in 1 2 3; do
+          docker pull ${{ matrix.source }} && break
+          echo "Pull attempt $attempt failed, retrying in 15s..."
+          sleep 15
+        done
+
+    - name: Tag and push to GHCR
+      run: |
+        docker tag ${{ matrix.source }} ${{ env.GHCR_ORG }}/${{ matrix.target }}
+        docker push ${{ env.GHCR_ORG }}/${{ matrix.target }}
