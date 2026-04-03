@@ -30,6 +30,23 @@ on:
         # example: MeshToPolyData@3ad8f08:BSplineGradient@0.3.0
         required: false
         type: string
+      apt-packages:
+        description: 'Space-separated list of apt packages to install on Linux runners before building (e.g. libopenslide-dev libfftw3-dev)'
+        required: false
+        type: string
+      brew-packages:
+        description: 'Space-separated list of Homebrew packages to install on macOS runners before building (e.g. openslide libomp)'
+        required: false
+        type: string
+      choco-packages:
+        description: 'Space-separated list of Chocolatey packages to install on Windows runners before building'
+        required: false
+        type: string
+      os-list:
+        description: 'JSON-formatted array of runner OS labels to build on (default: all platforms)'
+        required: false
+        type: string
+        default: '["ubuntu-22.04", "windows-2022", "macos-15-intel", "macos-15"]'
 
 jobs:
   build-test-cxx:
@@ -37,7 +54,7 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        os: [ubuntu-22.04, windows-2022, macos-15-intel, macos-15]
+        os: ${{ fromJSON(inputs.os-list) }}
         include:
           - os: ubuntu-22.04
             c-compiler: "gcc"
@@ -64,6 +81,22 @@ jobs:
       uses: jlumbroso/free-disk-space@v1.3.1
       with:
         large-packages: false
+
+    - name: Install system packages (Linux)
+      if: inputs.apt-packages != '' && runner.os == 'Linux'
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq ${{ inputs.apt-packages }}
+
+    - name: Install system packages (macOS)
+      if: inputs.brew-packages != '' && runner.os == 'macOS'
+      run: |
+        brew install ${{ inputs.brew-packages }}
+
+    - name: Install system packages (Windows)
+      if: inputs.choco-packages != '' && runner.os == 'Windows'
+      run: |
+        choco install -y ${{ inputs.choco-packages }}
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
