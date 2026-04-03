@@ -99,7 +99,7 @@ jobs:
 
         VARS_URL="https://raw.githubusercontent.com/${IPP_ORG}/ITKPythonPackage/${IPP_TAG}/scripts/dockcross-manylinux-set-vars.sh"
         echo "Fetching image tags from ${VARS_URL}"
-        curl -fsSL "${VARS_URL}" -o /tmp/set-vars.sh || { echo "Could not fetch set-vars.sh, skipping pre-pull"; exit 0; }
+        curl --retry 3 --retry-delay 30 --retry-all-errors -fsSL "${VARS_URL}" -o /tmp/set-vars.sh || { echo "Could not fetch set-vars.sh, skipping pre-pull"; exit 0; }
         source /tmp/set-vars.sh
 
         if [[ -z ${CONTAINER_SOURCE} ]]; then
@@ -132,7 +132,7 @@ jobs:
         IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG:=main}
         IPP_DOWNLOAD_ORG=${{ inputs.itk-python-package-org }}
         IPP_DOWNLOAD_ORG=${IPP_DOWNLOAD_ORG:=InsightSoftwareConsortium}
-        curl -L https://raw.githubusercontent.com/${IPP_DOWNLOAD_ORG}/ITKPythonPackage/${IPP_DOWNLOAD_GIT_TAG}/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
+        curl --retry 3 --retry-delay 30 --retry-all-errors -L https://raw.githubusercontent.com/${IPP_DOWNLOAD_ORG}/ITKPythonPackage/${IPP_DOWNLOAD_GIT_TAG}/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
         chmod u+x dockcross-manylinux-download-cache-and-build-module-wheels.sh
 
     - name: 'Build 🐍 Python 📦 package'
@@ -235,7 +235,7 @@ jobs:
 
         VARS_URL="https://raw.githubusercontent.com/${IPP_ORG}/ITKPythonPackage/${IPP_TAG}/scripts/dockcross-manylinux-set-vars.sh"
         echo "Fetching image tags from ${VARS_URL}"
-        curl -fsSL "${VARS_URL}" -o /tmp/set-vars.sh || { echo "Could not fetch set-vars.sh, skipping pre-pull"; exit 0; }
+        curl --retry 3 --retry-delay 30 --retry-all-errors -fsSL "${VARS_URL}" -o /tmp/set-vars.sh || { echo "Could not fetch set-vars.sh, skipping pre-pull"; exit 0; }
         source /tmp/set-vars.sh
 
         if [[ -z ${CONTAINER_SOURCE} ]]; then
@@ -267,7 +267,7 @@ jobs:
         IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG:=main}
         IPP_DOWNLOAD_ORG=${{ inputs.itk-python-package-org }}
         IPP_DOWNLOAD_ORG=${IPP_DOWNLOAD_ORG:=InsightSoftwareConsortium}
-        curl -L https://raw.githubusercontent.com/${IPP_DOWNLOAD_ORG}/ITKPythonPackage/${IPP_DOWNLOAD_GIT_TAG}/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
+        curl --retry 3 --retry-delay 30 --retry-all-errors -L https://raw.githubusercontent.com/${IPP_DOWNLOAD_ORG}/ITKPythonPackage/${IPP_DOWNLOAD_GIT_TAG}/scripts/dockcross-manylinux-download-cache-and-build-module-wheels.sh -O
         chmod u+x dockcross-manylinux-download-cache-and-build-module-wheels.sh
 
     - name: 'Build 🐍 Python 📦 package'
@@ -355,7 +355,7 @@ jobs:
         IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG:=main}
         IPP_DOWNLOAD_ORG=${{ inputs.itk-python-package-org }}
         IPP_DOWNLOAD_ORG=${IPP_DOWNLOAD_ORG:=InsightSoftwareConsortium}
-        curl -L https://raw.githubusercontent.com/${IPP_DOWNLOAD_ORG}/ITKPythonPackage/${IPP_DOWNLOAD_GIT_TAG}/scripts/macpython-download-cache-and-build-module-wheels.sh -O
+        curl --retry 3 --retry-delay 30 --retry-all-errors -L https://raw.githubusercontent.com/${IPP_DOWNLOAD_ORG}/ITKPythonPackage/${IPP_DOWNLOAD_GIT_TAG}/scripts/macpython-download-cache-and-build-module-wheels.sh -O
         chmod u+x macpython-download-cache-and-build-module-wheels.sh
 
     - name: 'Build 🐍 Python 📦 package'
