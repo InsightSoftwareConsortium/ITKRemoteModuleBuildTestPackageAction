@@ -87,12 +87,30 @@ on: [push,pull_request]
 
 jobs:
   cxx-build-workflow:
-    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@main
-    with:
-      itk-cmake-options: '-DITK_BUILD_DEFAULT_MODULES:BOOL=OFF -DITKGroup_Core:BOOL=ON'
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@v5.4.6
 
   python-build-workflow:
-    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@main
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@v5.4.6
+    secrets:
+      pypi_password: ${{ secrets.pypi_password }}
+```
+
+#### Modules with external system dependencies
+
+Modules that require system libraries not available on standard runners can use
+the `apt-packages`, `brew-packages`, `choco-packages`, and `os-list` inputs:
+
+```yaml
+jobs:
+  cxx-build-workflow:
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@v5.4.6
+    with:
+      apt-packages: 'libopenslide-dev'
+      brew-packages: 'openslide'
+      os-list: '["ubuntu-22.04", "macos-15-intel", "macos-15"]'
+
+  python-build-workflow:
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@v5.4.6
     secrets:
       pypi_password: ${{ secrets.pypi_password }}
 ```
