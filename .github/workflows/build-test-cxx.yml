@@ -141,6 +141,7 @@ jobs:
         sudo xcode-select -s "/Applications/Xcode_16.2.0.app"
 
     - name: Download ITK
+      shell: bash
       run: |
         cd "$ITK_BUILD_ROOT"
         git clone https://github.com/InsightSoftwareConsortium/ITK.git
