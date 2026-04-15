@@ -76,6 +76,30 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Shorten build root
+      shell: bash
+      run: |
+        # Strip "ITK" prefix and truncate to 12 chars to keep
+        # Windows build paths under ITK's 50-character limit.
+        # e.g. ITKFixedPointInverseDisplacementField → FixedPointIn
+        REPO_NAME="${GITHUB_REPOSITORY##*/}"
+        SHORT_NAME="${REPO_NAME#ITK}"
+        SHORT_NAME="${SHORT_NAME:0:12}"
+        WS_PARENT="$(cd "${GITHUB_WORKSPACE}/.." && pwd)"
+        echo "ITK_SHORT_NAME=${SHORT_NAME}" >> "$GITHUB_ENV"
+        echo "ITK_BUILD_ROOT=${WS_PARENT}" >> "$GITHUB_ENV"
+
+    - name: Create short build root junction (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $target = Split-Path $env:GITHUB_WORKSPACE
+        $shortRoot = "D:\$env:ITK_SHORT_NAME"
+        if (-not (Test-Path $shortRoot)) {
+          cmd /c mklink /J $shortRoot $target
+        }
+        echo "ITK_BUILD_ROOT=$shortRoot" | Out-File -Append -FilePath $env:GITHUB_ENV
+
     - name: Free Disk Space (Ubuntu)
       if: matrix.os == 'ubuntu-22.04'
       uses: jlumbroso/free-disk-space@v1.3.1
@@ -118,7 +142,7 @@ jobs:
 
     - name: Download ITK
       run: |
-        cd ..
+        cd "$ITK_BUILD_ROOT"
         git clone https://github.com/InsightSoftwareConsortium/ITK.git
         cd ITK
         git checkout ${{ inputs.itk-git-tag }}
@@ -127,7 +151,7 @@ jobs:
       if: matrix.os != 'windows-2022'
       shell: bash
       run: |
-        cd ..
+        cd "$ITK_BUILD_ROOT"
         mkdir ITK-build
         cd ITK-build
         MODULE_ARGS=""
@@ -152,7 +176,7 @@ jobs:
       shell: pwsh
       run: |
         Set-PSDebug -Trace 1
-        cd ..
+        cd $env:ITK_BUILD_ROOT
         & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64 -SkipAutomaticLocation
         mkdir ITK-build
         cd ITK-build
@@ -187,9 +211,9 @@ jobs:
         operating_system="${{ matrix.os }}"
         cat > dashboard.cmake << EOF
         set(CTEST_SITE "GitHubActions")
-        file(TO_CMAKE_PATH "\$ENV{GITHUB_WORKSPACE}/.." CTEST_DASHBOARD_ROOT)
+        file(TO_CMAKE_PATH "\$ENV{ITK_BUILD_ROOT}" CTEST_DASHBOARD_ROOT)
         file(TO_CMAKE_PATH "\$ENV{GITHUB_WORKSPACE}/" CTEST_SOURCE_DIRECTORY)
-        file(TO_CMAKE_PATH "\$ENV{GITHUB_WORKSPACE}/../build" CTEST_BINARY_DIRECTORY)
+        file(TO_CMAKE_PATH "\$ENV{ITK_BUILD_ROOT}/build" CTEST_BINARY_DIRECTORY)
         set(dashboard_source_name "${GITHUB_REPOSITORY}")
         if((ENV{GITHUB_REF_NAME} MATCHES "master" OR ENV{GITHUB_REF_NAME} MATCHES "main"))
           set(branch "-master")
