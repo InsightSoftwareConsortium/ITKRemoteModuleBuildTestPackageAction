@@ -87,10 +87,10 @@ on: [push,pull_request]
 
 jobs:
   cxx-build-workflow:
-    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@v5.4.6
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@v5.4.7
 
   python-build-workflow:
-    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@v5.4.6
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@v5.4.7
     secrets:
       pypi_password: ${{ secrets.pypi_password }}
 ```
@@ -103,14 +103,14 @@ the `apt-packages`, `brew-packages`, `choco-packages`, and `os-list` inputs:
 ```yaml
 jobs:
   cxx-build-workflow:
-    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@v5.4.6
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@v5.4.7
     with:
       apt-packages: 'libopenslide-dev'
       brew-packages: 'openslide'
       os-list: '["ubuntu-22.04", "macos-15-intel", "macos-15"]'
 
   python-build-workflow:
-    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@v5.4.6
+    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@v5.4.7
     secrets:
       pypi_password: ${{ secrets.pypi_password }}
 ```
@@ -179,7 +179,7 @@ to direct workflow execution.
 
 ```yaml
   with:
-    itk-git-tag: 'v5.4.6'
+    itk-git-tag: 'v5.4.7'
 ```
 
 - `itk-cmake-options`: CMake configuration parameters for building ITK as a prerequisite.
@@ -260,7 +260,7 @@ to direct workflow execution.
 
 ```yaml
   with:
-    itk-wheel-tag: 'v5.4.6'
+    itk-wheel-tag: 'v5.4.7'
 ```
 
 - `itk-python-package-tag`: The git tag or commit hash for ITKPythonPackage build scripts to use.
@@ -272,7 +272,7 @@ to direct workflow execution.
 
 ```yaml
   with:
-    itk-python-package-tag: 'v5.4.6'
+    itk-python-package-tag: 'v5.4.7'
 ```
 
 - `itk-python-package-org`: The GitHub organization to reference for fetching ITKPythonPackage build scripts.
@@ -360,7 +360,7 @@ on GitHub.
 
 ## Frequently Asked Questions
 
-### What target platforms and architectures are supported (as of ITK 5.4.6)?
+### What target platforms and architectures are supported (as of ITK 5.4.7)?
 
 The `build-test-cxx` workflow supports building and running C++ tests on GitHub Actions runner images for
 Windows, Linux, and macOS. Image details are available [here](https://github.com/actions/runner-images).
@@ -374,7 +374,7 @@ The `build-test-package-python.yml` workflow supports Python package generation 
 - Linux glibc 2.28+ (E.g. Ubuntu 20.04+) aarch64 (ARMv8) platforms
 
 ```txt
-ITK 5.4.6
+ITK 5.4.7
   C++:    amd64 - mac, linux, windows
             arm - mac
   Python: amd64 - linux 2.17+, glibc, 2.28+, windows,
