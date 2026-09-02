@@ -74,7 +74,7 @@ jobs:
             cmake-build-type: "MinSizeRel"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Shorten build root
       shell: bash
@@ -123,7 +123,7 @@ jobs:
         choco install -y ${{ inputs.choco-packages }}
 
     - name: Set up Python 3.11
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.11"
 
@@ -133,7 +133,7 @@ jobs:
         python -m pip install ninja
 
     - name: Get specific version of CMake, Ninja
-      uses: lukka/get-cmake@v4.2.3
+      uses: lukka/get-cmake@v4.4.2
 
     - name: 'Specific XCode version = 16.2'
       if: matrix.os == 'macos-15-intel' || matrix.os == 'macos-15'
