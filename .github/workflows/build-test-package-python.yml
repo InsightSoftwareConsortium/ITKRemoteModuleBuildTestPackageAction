@@ -1,6 +1,29 @@
 ﻿name: 'Build, Test, Package ITK Remote Module'
 
 on:
+  # Self-test: build a real remote module's macOS wheel without a caller repository.
+  workflow_dispatch:
+    inputs:
+      test-module-repository:
+        description: 'Remote module repository to build'
+        required: false
+        type: string
+        default: 'InsightSoftwareConsortium/ITKSplitComponents'
+      itk-wheel-tag:
+        description: 'Github release version tag for the ITKPythonBuilds build archive to use'
+        required: false
+        type: string
+        default: 'v6.0b02'
+      python3-minor-versions:
+        description: 'JSON-formatted array of Python 3.x minor version wheel targets'
+        required: false
+        type: string
+        default: '["11"]'
+      macosx-deployment-target:
+        description: 'MACOSX_DEPLOYMENT_TARGET; empty selects 11.0'
+        required: false
+        type: string
+        default: ''
   workflow_call:
     inputs:
       cmake-options:
@@ -35,16 +58,15 @@ on:
         description: 'JSON-formatted array of Python 3.x minor version wheel targets'
         required: false
         type: string
-        # Do not build explicit python 3.12 packages. The 3.11 packages support >= 3.11.
-        # Python 3.12 and 3.13 aim to maintain ABI compatibility with Python 3.11 through the Stable ABI.
-        default: '["10","11"]'
+        # Python 3.11 is the minimum; its Stable ABI (abi3) wheel installs on every later Python.
+        default: '["11"]'
       manylinux-platforms:
         description: 'JSON-formatted array of "<manylinux-image>-<arch>" specializations'
         required: false
         type: string
         default: '["_2_28-x64"]'
       macosx-deployment-target:
-        description: 'A string to provide as MACOSX_DEPLOYMENT_TARGET, e.g. "10.15". If left empty (default), the per-architecture default will be used.'
+        description: 'MACOSX_DEPLOYMENT_TARGET for arm64 wheels, e.g. "11.0". If left empty (default), 11.0 is used; it must match the ITKPythonBuilds cache.'
         required: false
         type: string
         default: ''
@@ -60,6 +82,7 @@ on:
 jobs:
 
   build-linux-py:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-22.04
     strategy:
       max-parallel: 2
@@ -199,6 +222,7 @@ jobs:
         path: dist/*.whl
 
   build-linux-arm-py:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-22.04-arm
     strategy:
       max-parallel: 2
@@ -336,20 +360,73 @@ jobs:
       max-parallel: 2
       matrix:
         python3-minor-version: ${{ fromJSON(inputs.python3-minor-versions) }}
+    env:
+      MACOSX_DEPLOYMENT_TARGET: ${{ inputs.macosx-deployment-target || '11.0' }}
+      # cibuildwheel cannot build prerequisite remote modules; those keep the ITKPythonPackage script.
+      USE_CIBUILDWHEEL: ${{ inputs.itk-module-deps == '' || inputs.itk-module-deps == null }}
 
     steps:
     - uses: actions/checkout@v5
+      with:
+        repository: ${{ inputs.test-module-repository || github.repository }}
 
     - name: 'Specific XCode version'
       run: |
         ls /Applications/Xcode*
         sudo xcode-select -s "/Applications/Xcode_16.2.app"
 
+    - name: 'Fetch cached ITK build'
+      if: env.USE_CIBUILDWHEEL == 'true'
+      shell: bash
+      env:
+        ITK_WHEEL_TAG: ${{ inputs.itk-wheel-tag }}
+        PY_MINOR: ${{ matrix.python3-minor-version }}
+      run: |
+        # The cached ITK CMake configuration embeds this absolute path.
+        DASHBOARD_BUILD_DIRECTORY=/Users/svc-dashboard/D/P
+        sudo mkdir -p "${DASHBOARD_BUILD_DIRECTORY}"
+        sudo chown "$(id -u):$(id -g)" "${DASHBOARD_BUILD_DIRECTORY}"
+
+        tarball_name="ITKPythonBuilds-macosx-arm64.tar.zst"
+        curl --retry 3 --retry-delay 30 --retry-all-errors -fL -o "${tarball_name}" \
+          "https://github.com/InsightSoftwareConsortium/ITKPythonBuilds/releases/download/${ITK_WHEEL_TAG}/${tarball_name}"
+        zstd -d --long=31 -c "${tarball_name}" | tar -x -C "${DASHBOARD_BUILD_DIRECTORY}" --exclude '*/venvs/*'
+        rm "${tarball_name}"
+
+        itk_config=$(find "${DASHBOARD_BUILD_DIRECTORY}" -maxdepth 4 -name ITKConfig.cmake \
+          \( -path "*ITK-3.${PY_MINOR}-macosx*" -o -path "*py3${PY_MINOR}*" \) | head -1)
+        if [[ -z "${itk_config}" ]]; then
+          echo "No ITKConfig.cmake for Python 3.${PY_MINOR} in ${tarball_name} under ${DASHBOARD_BUILD_DIRECTORY}"
+          exit 1
+        fi
+        echo "ITK_DIR=$(dirname "${itk_config}")" >> "$GITHUB_ENV"
+
+    - name: 'Build 🐍 Python 📦 package (cibuildwheel)'
+      if: env.USE_CIBUILDWHEEL == 'true'
+      uses: pypa/cibuildwheel@v4.1.0
+      with:
+        output-dir: dist
+      env:
+        CIBW_BUILD: "cp3${{ matrix.python3-minor-version }}-*"
+        CIBW_ARCHS_MACOS: arm64
+        # PY_SITE_PACKAGES_PATH must be typed :PATH or WrapITK absolutizes "." and installs outside the wheel.
+        CIBW_CONFIG_SETTINGS_MACOS: >-
+          cmake.define.WRAP_ITK_INSTALL_COMPONENT_IDENTIFIER:STRING=PythonWheel
+          cmake.define.PY_SITE_PACKAGES_PATH:PATH=.
+          cmake.define.CMAKE_INSTALL_LIBDIR:STRING=lib
+          cmake.define.BUILD_TESTING:BOOL=OFF
+          wheel.py-api=cp3${{ matrix.python3-minor-version }}
+        CIBW_ENVIRONMENT_MACOS: >-
+          ITK_DIR=${{ env.ITK_DIR }}
+          MACOSX_DEPLOYMENT_TARGET=${{ env.MACOSX_DEPLOYMENT_TARGET }}
+          CMAKE_ARGS="${{ inputs.cmake-options }}"
+
     - name: Get specific version of CMake, Ninja
+      if: env.USE_CIBUILDWHEEL != 'true'
       uses: lukka/get-cmake@v4.4.2
 
     - name: 'Fetch build script'
-      if: matrix.python3-minor-version != '8'
+      if: env.USE_CIBUILDWHEEL != 'true'
       run: |
         IPP_DOWNLOAD_GIT_TAG=${{ inputs.itk-python-package-tag }}
         IPP_DOWNLOAD_GIT_TAG=${IPP_DOWNLOAD_GIT_TAG:=main}
@@ -358,8 +435,8 @@ jobs:
         curl --retry 3 --retry-delay 30 --retry-all-errors -L https://raw.githubusercontent.com/${IPP_DOWNLOAD_ORG}/ITKPythonPackage/${IPP_DOWNLOAD_GIT_TAG}/scripts/macpython-download-cache-and-build-module-wheels.sh -O
         chmod u+x macpython-download-cache-and-build-module-wheels.sh
 
-    - name: 'Build 🐍 Python 📦 package'
-      if: matrix.python3-minor-version != '8'
+    - name: 'Build 🐍 Python 📦 package (module dependencies)'
+      if: env.USE_CIBUILDWHEEL != 'true'
       shell: bash
       run: |
         rm -rf dist
@@ -368,11 +445,6 @@ jobs:
         export ITKPYTHONPACKAGE_TAG=${{ inputs.itk-python-package-tag }}
         export ITKPYTHONPACKAGE_ORG=${{ inputs.itk-python-package-org }}
         export ITK_MODULE_PREQ=${{ inputs.itk-module-deps }}
-        if [ -z ${{ inputs.macosx-deployment-target }} ]; then
-          export MACOSX_DEPLOYMENT_TARGET=15.0
-        else
-          export MACOSX_DEPLOYMENT_TARGET=${{ inputs.macosx-deployment-target }}
-        fi
         if [ -z ${{ inputs.cmake-options }} ]; then
           CMAKE_OPTIONS=""
         else
@@ -398,7 +470,7 @@ jobs:
         echo "All wheels"
         ls -al dist/*.whl
 
-        WHEEL_PATTERN="dist/itk_*macosx*.whl"
+        WHEEL_PATTERN="dist/itk_*cp3${{ matrix.python3-minor-version }}-abi3-macosx_*_arm64.whl"
         EXPECTED_WHEEL_COUNT=1
 
         WHEEL_COUNT=`(ls ${WHEEL_PATTERN} | wc -l)`
@@ -418,6 +490,7 @@ jobs:
         path: dist/*.whl
 
   build-windows-python-packages:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: windows-2022
     strategy:
       max-parallel: 2
