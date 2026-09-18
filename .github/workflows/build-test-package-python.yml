@@ -20,7 +20,7 @@ on:
         type: string
         default: '["11"]'
       macosx-deployment-target:
-        description: 'MACOSX_DEPLOYMENT_TARGET; empty selects 11.0'
+        description: 'MACOSX_DEPLOYMENT_TARGET; empty selects 14.0'
         required: false
         type: string
         default: ''
@@ -66,7 +66,7 @@ on:
         type: string
         default: '["_2_28-x64"]'
       macosx-deployment-target:
-        description: 'MACOSX_DEPLOYMENT_TARGET for arm64 wheels, e.g. "11.0". If left empty (default), 11.0 is used; it must match the ITKPythonBuilds cache.'
+        description: 'MACOSX_DEPLOYMENT_TARGET for arm64 wheels, e.g. "14.0". If left empty (default), 14.0 is used; it must match the ITKPythonBuilds cache.'
         required: false
         type: string
         default: ''
@@ -361,7 +361,7 @@ jobs:
       matrix:
         python3-minor-version: ${{ fromJSON(inputs.python3-minor-versions) }}
     env:
-      MACOSX_DEPLOYMENT_TARGET: ${{ inputs.macosx-deployment-target || '11.0' }}
+      MACOSX_DEPLOYMENT_TARGET: ${{ inputs.macosx-deployment-target || '14.0' }}
       # cibuildwheel cannot build prerequisite remote modules; those keep the ITKPythonPackage script.
       USE_CIBUILDWHEEL: ${{ inputs.itk-module-deps == '' || inputs.itk-module-deps == null }}
 
