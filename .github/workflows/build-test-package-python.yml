@@ -331,7 +331,7 @@ jobs:
         path: dist/*.whl
 
   build-macos-arm-py:
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       max-parallel: 2
       matrix:
