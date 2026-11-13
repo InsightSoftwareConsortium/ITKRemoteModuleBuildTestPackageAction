@@ -107,7 +107,7 @@ jobs:
     with:
       apt-packages: 'libopenslide-dev'
       brew-packages: 'openslide'
-      os-list: '["ubuntu-22.04", "macos-15-intel", "macos-15"]'
+      os-list: '["ubuntu-22.04", "macos-26-intel", "macos-26"]'
 
   python-build-workflow:
     uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@v5.4.7

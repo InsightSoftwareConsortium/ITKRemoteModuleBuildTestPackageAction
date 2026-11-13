@@ -330,7 +330,7 @@ jobs:
         path: dist/*.whl
 
   build-macos-arm-py:
-    runs-on: macos-15
+    runs-on: macos-26
     strategy:
       max-parallel: 2
       matrix:
@@ -354,7 +354,7 @@ jobs:
     - name: 'Specific XCode version'
       run: |
         ls /Applications/Xcode*
-        sudo xcode-select -s "/Applications/Xcode_16.4.app"
+        sudo xcode-select -s "/Applications/Xcode_26.6.app"
 
     - name: Get specific version of CMake, Ninja
       uses: lukka/get-cmake@v4.4.2

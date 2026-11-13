@@ -46,7 +46,7 @@ on:
         description: 'JSON-formatted array of runner OS labels to build on (default: all platforms)'
         required: false
         type: string
-        default: '["ubuntu-22.04", "windows-2022", "macos-15-intel", "macos-15"]'
+        default: '["ubuntu-22.04", "windows-2022", "macos-26-intel", "macos-26"]'
 
 jobs:
   build-test-cxx:
@@ -64,11 +64,11 @@ jobs:
             c-compiler: "cl.exe"
             cxx-compiler: "cl.exe"
             cmake-build-type: "Release"
-          - os: macos-15-intel
+          - os: macos-26-intel
             c-compiler: "clang"
             cxx-compiler: "clang++"
             cmake-build-type: "MinSizeRel"
-          - os: macos-15
+          - os: macos-26
             c-compiler: "clang"
             cxx-compiler: "clang++"
             cmake-build-type: "MinSizeRel"
@@ -135,10 +135,10 @@ jobs:
     - name: Get specific version of CMake, Ninja
       uses: lukka/get-cmake@v4.4.2
 
-    - name: 'Specific XCode version = 16.4'
-      if: matrix.os == 'macos-15-intel' || matrix.os == 'macos-15'
+    - name: 'Specific XCode version = 26.6'
+      if: matrix.os == 'macos-26-intel' || matrix.os == 'macos-26'
       run: |
-        sudo xcode-select -s "/Applications/Xcode_16.4.0.app"
+        sudo xcode-select -s "/Applications/Xcode_26.6.0.app"
 
     - name: Download ITK
       shell: bash
