@@ -354,7 +354,7 @@ jobs:
     - name: 'Specific XCode version'
       run: |
         ls /Applications/Xcode*
-        sudo xcode-select -s "/Applications/Xcode_16.2.app"
+        sudo xcode-select -s "/Applications/Xcode_16.4.app"
 
     - name: Get specific version of CMake, Ninja
       uses: lukka/get-cmake@v4.4.2
