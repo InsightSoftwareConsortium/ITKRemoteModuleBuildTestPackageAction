@@ -330,7 +330,9 @@ jobs:
         path: dist/*.whl
 
   build-macos-arm-py:
-    runs-on: macos-26
+    # The ITKPythonBuilds macOS arm64 archive is built with Xcode 16.4 and its
+    # CMake targets reference that Xcode's SDK, which macos-26 images lack.
+    runs-on: macos-15
     strategy:
       max-parallel: 2
       matrix:
@@ -354,7 +356,7 @@ jobs:
     - name: 'Specific XCode version'
       run: |
         ls /Applications/Xcode*
-        sudo xcode-select -s "/Applications/Xcode_26.6.app"
+        sudo xcode-select -s "/Applications/Xcode_16.4.app"
 
     - name: Get specific version of CMake, Ninja
       uses: lukka/get-cmake@v4.4.2
